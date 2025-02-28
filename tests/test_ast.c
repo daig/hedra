@@ -2,6 +2,21 @@
 #include "ptx_identifier.h"
 #include "ptx_constant.h"
 #include <stdio.h>
+#include <math.h> // For isnan, isinf
+
+// Helper function to print float in both decimal and hex representation
+void print_float(float f) {
+    uint32_t bits;
+    memcpy(&bits, &f, sizeof(float));
+    printf("%.10g (hex: 0x%08X)", (double)f, bits);
+}
+
+// Helper function to print double in both decimal and hex representation
+void print_double(double d) {
+    uint64_t bits;
+    memcpy(&bits, &d, sizeof(double));
+    printf("%.17g (hex: 0x%016lX)", d, bits);
+}
 
 int main() {
     // Test predefined identifier lookup
@@ -91,6 +106,62 @@ int main() {
             } else {
                 printf("unsigned value = %llu (.u64)\n", (unsigned long long)constant.u64_val);
             }
+        }
+    }
+    
+    // Test floating-point literal parsing
+    printf("\nTesting floating-point constant parsing:\n");
+    
+    // Test cases for different floating-point literals
+    const char* float_literals[] = {
+        "123.456",           // simple decimal
+        "0.1",               // decimal less than 1
+        "1e10",              // decimal with positive exponent
+        "1.5e-5",            // decimal with negative exponent
+        "0F3f800000",        // hex representation of 1.0f (32-bit)
+        "0F00000000",        // hex representation of 0.0f (32-bit)
+        "0F7f800000",        // hex representation of +infinity (32-bit)
+        "0Fff800000",        // hex representation of NaN (32-bit)
+        "0D3ff0000000000000" // hex representation of 1.0 (64-bit)
+    };
+    
+    ptx_constant_t float_constant;
+    
+    for (int i = 0; i < sizeof(float_literals) / sizeof(float_literals[0]); i++) {
+        if (parse_float_literal(float_literals[i], &float_constant)) {
+            printf("'%s' parsed successfully: ", float_literals[i]);
+            
+            if (float_constant.type == PTX_CONST_FLOAT) {
+                // 64-bit double-precision
+                printf("double value = ");
+                print_double(float_constant.f64_val);
+                printf(" (.f64)\n");
+            } else if (float_constant.type == PTX_CONST_FLOAT_SINGLE) {
+                // 32-bit single-precision
+                printf("float value = ");
+                print_float(float_constant.f32_val);
+                printf(" (.f32)\n");
+            }
+        } else {
+            printf("'%s' parsing FAILED\n", float_literals[i]);
+        }
+    }
+    
+    // Test invalid floating-point literals
+    const char* invalid_float_literals[] = {
+        "123.456f",          // suffix not allowed
+        "0F123",             // too short for f32 hex
+        "0F123456789",       // too long for f32 hex
+        "0D123",             // too short for f64 hex
+        "123.456.789"        // multiple decimal points
+    };
+    
+    printf("\nTesting invalid floating-point literals:\n");
+    for (int i = 0; i < sizeof(invalid_float_literals) / sizeof(invalid_float_literals[0]); i++) {
+        if (!parse_float_literal(invalid_float_literals[i], &float_constant)) {
+            printf("'%s' correctly rejected\n", invalid_float_literals[i]);
+        } else {
+            printf("'%s' incorrectly parsed\n", invalid_float_literals[i]);
         }
     }
     
