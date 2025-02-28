@@ -14,12 +14,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(AST_SOURCES
     src/ptx_predefined_identifier.c
     src/ptx_identifier.c
+    src/ptx_constant.c
 )
 
 # Header files (not required for compilation, but good to list for IDE integration)
 set(AST_HEADERS
     include/ptx_predefined_identifier.h
     include/ptx_identifier.h
+    include/ptx_constant.h
 )
 
 # Create a library
