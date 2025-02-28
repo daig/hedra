@@ -15,6 +15,7 @@ set(AST_SOURCES
     src/ptx_predefined_identifier.c
     src/ptx_identifier.c
     src/ptx_constant.c
+    src/ptx_constant_expr.c
 )
 
 # Header files (not required for compilation, but good to list for IDE integration)
@@ -22,6 +23,7 @@ set(AST_HEADERS
     include/ptx_predefined_identifier.h
     include/ptx_identifier.h
     include/ptx_constant.h
+    include/ptx_constant_expr.h
 )
 
 # Create a library
@@ -34,4 +36,9 @@ install(FILES ${AST_HEADERS} DESTINATION include)
 # Test executable
 add_executable(ast_test tests/test_ast.c)
 target_link_libraries(ast_test ptx_ast)
-install(TARGETS ast_test DESTINATION bin) 
+install(TARGETS ast_test DESTINATION bin)
+
+# Test executable for constant expressions
+add_executable(expr_test tests/test_constant_expr.c)
+target_link_libraries(expr_test ptx_ast)
+install(TARGETS expr_test DESTINATION bin) 

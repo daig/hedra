@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../include/ptx_constent_expr.h"
+#include "../include/ptx_constant_expr.h"
 
 // Create a constant expression
 ptx_expr_t* create_constant_expr(ptx_constant_t constant) {
