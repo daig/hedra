@@ -65,3 +65,5 @@ _deps
 .Trashes
 ehthumbs.db
 Thumbs.db 
+
+.cursor
