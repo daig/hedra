@@ -72,9 +72,7 @@ ptx_expr_t* create_ternary_expr(ptx_expr_t* condition, ptx_expr_t* true_expr, pt
 
 // Free an expression tree
 void free_expr(ptx_expr_t* expr) {
-    if (expr == NULL) {
-        return;
-    }
+    if (expr == NULL) { return; }
     
     switch (expr->type) {
         case EXPR_UNARY_OP:
@@ -93,7 +91,6 @@ void free_expr(ptx_expr_t* expr) {
             // No nested expressions to free
             break;
     }
-    
     free(expr);
 }
 
