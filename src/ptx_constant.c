@@ -8,7 +8,7 @@
 #define HEX_PATTERN "^0[xX][0-9a-fA-F]+U?$"
 #define OCT_PATTERN "^0[0-7]+U?$" 
 #define BIN_PATTERN "^0[bB][01]+U?$"
-#define DEC_PATTERN "^[1-9][0-9]*U?$"
+#define DEC_PATTERN "^([0-9]|[1-9][0-9]*)U?$"  // Single digit or multi-digit starting with non-zero
 
 // Regex patterns for floating-point literals
 #define FLOAT_DEC_PATTERN "^[+-]?([0-9]*[.])?[0-9]+([eE][+-]?[0-9]+)?$"
@@ -134,4 +134,32 @@ bool parse_float_literal(const char* str, ptx_constant_t* constant) {
     regfree(&float_hex_f64_regex);
 
     return success;
+}
+
+// Parse predicate literal string and store in ptx_constant_t
+// In PTX, integer constants may be used as predicates, with 0 as False and non-zero as True
+// Returns true if successful, false if invalid format
+bool parse_pred_literal(const char* str, ptx_constant_t* constant) {
+    // First try to parse as an integer
+    ptx_constant_t int_constant;
+    if (!parse_int_literal(str, &int_constant)) {
+        // If it's not a valid integer literal, fail
+        return false;
+    }
+    
+    // Convert to predicate (0 = False, non-zero = True)
+    constant->type = PTX_CONST_PRED;
+    
+    // Get the integer value (whether it was signed or unsigned)
+    uint64_t int_value = 0;
+    if (int_constant.type == PTX_CONST_INT_SIGNED) {
+        int_value = (int_constant.s64_val != 0) ? 1 : 0;
+    } else { // PTX_CONST_INT_UNSIGNED
+        int_value = (int_constant.u64_val != 0) ? 1 : 0;
+    }
+    
+    // Set the predicate value (True = 1, False = 0)
+    constant->pred_val = (uint8_t)int_value;
+    
+    return true;
 } 

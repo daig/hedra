@@ -165,6 +165,57 @@ int main() {
         }
     }
     
+    // Test predicate literal parsing
+    printf("\nTesting predicate constant parsing:\n");
+    
+    // Test cases for predicate literals (using integer constants)
+    const char* pred_literals[] = {
+        "0",                // False (decimal 0)
+        "1",                // True (decimal 1)
+        "42",               // True (non-zero decimal)
+        "0x0",              // False (hex 0)
+        "0x1",              // True (hex 1)
+        "0xFF",             // True (non-zero hex)
+        "0b0",              // False (binary 0)
+        "0b1",              // True (binary 1)
+        "0b101010",         // True (non-zero binary)
+        "00",               // False (octal 0)
+        "01"                // True (octal 1)
+    };
+    
+    ptx_constant_t pred_constant;
+    
+    for (int i = 0; i < sizeof(pred_literals) / sizeof(pred_literals[0]); i++) {
+        if (parse_pred_literal(pred_literals[i], &pred_constant)) {
+            printf("'%s' parsed successfully: predicate value = %s\n", 
+                  pred_literals[i], 
+                  pred_constant.pred_val ? "True" : "False");
+        } else {
+            printf("'%s' parsing FAILED\n", pred_literals[i]);
+        }
+    }
+    
+    // Test invalid predicate literals
+    const char* invalid_pred_literals[] = {
+        "true",             // not an integer
+        "false",            // not an integer
+        "True",             // not an integer
+        "False",            // not an integer
+        "predicate",        // not an integer
+        ""                  // empty string
+    };
+    
+    printf("\nTesting invalid predicate literals:\n");
+    for (int i = 0; i < sizeof(invalid_pred_literals) / sizeof(invalid_pred_literals[0]); i++) {
+        if (!parse_pred_literal(invalid_pred_literals[i], &pred_constant)) {
+            printf("'%s' correctly rejected\n", invalid_pred_literals[i]);
+        } else {
+            printf("'%s' incorrectly parsed to %s\n", 
+                  invalid_pred_literals[i],
+                  pred_constant.pred_val ? "True" : "False");
+        }
+    }
+    
     // Test WARP_SZ constant
     printf("\nWARP_SZ value: %d\n", WARP_SZ);
     
