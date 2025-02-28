@@ -1,0 +1,6 @@
+---
+description: when attempting to compile or test the code
+globs: 
+alwaysApply: false
+---
+You are developing on macos 15.3.1 but the code will be compiled and deployed on ubuntu with an nvidia RTX 2000 Ada gpu. You cannot run any cuda tools including ptxas here in development. if you want to try compiling or testing, tell me the command to run and wait for me to copy the output to you. You can still run basic c toolchain like clang and cmake yourself.
