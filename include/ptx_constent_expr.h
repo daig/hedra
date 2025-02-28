@@ -86,9 +86,6 @@ ptx_expr_t* create_ternary_expr(ptx_expr_t* condition, ptx_expr_t* true_expr, pt
 // Free an expression tree
 void free_expr(ptx_expr_t* expr);
 
-// Parse a string into a constant expression
-ptx_expr_t* parse_constant_expr(const char* str);
-
 // Evaluate an expression to a constant value
 bool evaluate_expr(ptx_expr_t* expr, ptx_constant_t* result);
 
