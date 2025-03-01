@@ -2,15 +2,28 @@
 
 #include <ptx_ast/ptx_type.h>
 #include <stdbool.h>
+#include <stddef.h> // For NULL
 
 /**
- * @brief Parse a string as a PTX type (.s32, .f64, .v4.u8, etc.)
+ * @brief Parse a string as a PTX type (.s32, .f64, .v4.u8, etc.) with position tracking
  * 
  * This function attempts to parse the input string as a PTX type,
  * which can be a fundamental type (like .s32, .f64), a vector type
  * (like .v2.f32), a graphics type (like .texref), or an alternate
  * float format (like .bf16).
  *
+ * @param str The string to parse as a PTX type (should start with a period)
+ * @param type Pointer to ptx_type_t where the result will be stored
+ * @param end_ptr Optional pointer to char* that will be updated to point
+ *                to the character after the parsed type. Can be NULL if
+ *                the position information is not needed.
+ * @return true if the string was successfully parsed as a type, false otherwise
+ */
+bool parse_type_with_position(const char* str, ptx_type_t* type, const char** end_ptr);
+
+/**
+ * @brief Parse a string as a PTX type (.s32, .f64, .v4.u8, etc.)
+ * 
  * @param str The string to parse as a PTX type (should start with a period)
  * @param type Pointer to ptx_type_t where the result will be stored
  * @return true if the string was successfully parsed as a type, false otherwise

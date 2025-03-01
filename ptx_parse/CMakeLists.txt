@@ -24,6 +24,7 @@ set(SOURCES
     src/c_directive_parse.c
     src/ptx_initializer_value_parse.c
     src/ptx_statespace_parse.c
+    src/ptx_declaration_lhs_parse.c
 )
 
 # Header files
@@ -40,6 +41,7 @@ set(HEADERS
     include/ptx_parse/ptx_statement_parse.h
     include/ptx_parse/ptx_type_parse.h
     include/ptx_parse/ptx_statespace_parse.h
+    include/ptx_parse/ptx_declaration_lhs_parse.h
 )
 
 # Create library

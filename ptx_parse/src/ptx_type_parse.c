@@ -6,6 +6,7 @@
 #include <ptx_ast/ptx_scalar_float_type.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
 
 // Struct to map type strings to enum values
 typedef struct {
@@ -78,26 +79,35 @@ static const type_map_entry graphics_type_map[] = {
     {"surfref", PTX_TYPE_SURFREF}
 };
 
-// Helper function for case-insensitive string comparison
-static int str_case_cmp(const char *s1, const char *s2) {
+// Case-insensitive string comparison helper function
+// Returns 0 if s1 starts with s2 (ignoring case), non-zero otherwise
+static int str_case_cmp(const char* s1, const char* s2) {
     if (s1 == NULL || s2 == NULL) {
-        return -1;
+        return s1 == s2 ? 0 : (s1 < s2 ? -1 : 1);
     }
     
-    for (; tolower((unsigned char)*s1) == tolower((unsigned char)*s2); s1++, s2++) {
-        if (*s1 == '\0') {
-            return 0;
-        }
+    // Compare characters until end of s2 or a whitespace in s1
+    while (*s2 && *s1 && !isspace((unsigned char)*s1) && 
+           (tolower((unsigned char)*s1) == tolower((unsigned char)*s2))) {
+        s1++;
+        s2++;
     }
+    
+    // If we reached the end of s2, and s1 is at the end or a whitespace, it's a match
+    if (*s2 == '\0' && (*s1 == '\0' || isspace((unsigned char)*s1))) {
+        return 0;
+    }
+    
+    // Otherwise, just return the difference between the current characters
     return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
 }
 
 // Forward declaration for recursive calls
-bool parse_type(const char* str, ptx_type_t* type);
+bool parse_type_with_position(const char* str, ptx_type_t* type, const char** end_ptr);
 
 // Function to parse a vector type
 // Format: .vN.type (e.g., .v2.f32, .v4.u8)
-static bool parse_vector_type(const char* str, ptx_type_t* type) {
+static bool parse_vector_type(const char* str, ptx_type_t* type, const char** end_ptr) {
     if (str == NULL || type == NULL) {
         return false;
     }
@@ -131,6 +141,9 @@ static bool parse_vector_type(const char* str, ptx_type_t* type) {
     if (size == '2') {
         if (str_case_cmp(str, ".f32") == 0) {
             *type = PTX_TYPE_F32X2;
+            if (end_ptr) {
+                *end_ptr = str + 4; // .f32 is 4 characters
+            }
             return true;
         }
         // Add other vector types as needed
@@ -141,8 +154,8 @@ static bool parse_vector_type(const char* str, ptx_type_t* type) {
     return false;
 }
 
-// Main type parsing function
-bool parse_type(const char* str, ptx_type_t* type) {
+// Main type parsing function with position tracking
+bool parse_type_with_position(const char* str, ptx_type_t* type, const char** end_ptr) {
     // Check for NULL inputs
     if (str == NULL || type == NULL) {
         return false;
@@ -158,7 +171,7 @@ bool parse_type(const char* str, ptx_type_t* type) {
     
     // Check for vector type
     if (tolower((unsigned char)type_str[0]) == 'v') {
-        return parse_vector_type(str, type);
+        return parse_vector_type(str, type, end_ptr);
     }
     
     // Try to match against each type map
@@ -167,6 +180,9 @@ bool parse_type(const char* str, ptx_type_t* type) {
     for (size_t i = 0; i < sizeof(fundamental_type_map) / sizeof(fundamental_type_map[0]); i++) {
         if (str_case_cmp(type_str, fundamental_type_map[i].name) == 0) {
             *type = fundamental_type_map[i].type;
+            if (end_ptr) {
+                *end_ptr = type_str + strlen(fundamental_type_map[i].name);
+            }
             return true;
         }
     }
@@ -175,6 +191,9 @@ bool parse_type(const char* str, ptx_type_t* type) {
     for (size_t i = 0; i < sizeof(alt_float_format_map) / sizeof(alt_float_format_map[0]); i++) {
         if (str_case_cmp(type_str, alt_float_format_map[i].name) == 0) {
             *type = alt_float_format_map[i].type;
+            if (end_ptr) {
+                *end_ptr = type_str + strlen(alt_float_format_map[i].name);
+            }
             return true;
         }
     }
@@ -183,6 +202,9 @@ bool parse_type(const char* str, ptx_type_t* type) {
     for (size_t i = 0; i < sizeof(packed_float_type_map) / sizeof(packed_float_type_map[0]); i++) {
         if (str_case_cmp(type_str, packed_float_type_map[i].name) == 0) {
             *type = packed_float_type_map[i].type;
+            if (end_ptr) {
+                *end_ptr = type_str + strlen(packed_float_type_map[i].name);
+            }
             return true;
         }
     }
@@ -191,6 +213,9 @@ bool parse_type(const char* str, ptx_type_t* type) {
     for (size_t i = 0; i < sizeof(packed_int_type_map) / sizeof(packed_int_type_map[0]); i++) {
         if (str_case_cmp(type_str, packed_int_type_map[i].name) == 0) {
             *type = packed_int_type_map[i].type;
+            if (end_ptr) {
+                *end_ptr = type_str + strlen(packed_int_type_map[i].name);
+            }
             return true;
         }
     }
@@ -199,10 +224,17 @@ bool parse_type(const char* str, ptx_type_t* type) {
     for (size_t i = 0; i < sizeof(graphics_type_map) / sizeof(graphics_type_map[0]); i++) {
         if (str_case_cmp(type_str, graphics_type_map[i].name) == 0) {
             *type = graphics_type_map[i].type;
+            if (end_ptr) {
+                *end_ptr = type_str + strlen(graphics_type_map[i].name);
+            }
             return true;
         }
     }
     
-    // If we get here, no matching type was found
     return false;
+}
+
+// Original function for backward compatibility
+bool parse_type(const char* str, ptx_type_t* type) {
+    return parse_type_with_position(str, type, NULL);
 } 
