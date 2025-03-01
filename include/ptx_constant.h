@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>  // For strlen
 #include <stdlib.h>  // For strtoull, NULL
-#include <regex.h>
 #include <stdbool.h>
 
 // Predefined constant for warp size
@@ -27,19 +26,5 @@ typedef struct {
         uint8_t pred_val;   // Predicate constant (0=False, non-zero=True)
     };
 } ptx_constant_t;
-
-
-// Parse integer literal string and store in ptx_constant_t
-// Returns true if successful, false if invalid format
-bool parse_int_literal(const char* str, ptx_constant_t* constant);
-
-// Parse floating-point literal string and store in ptx_constant_t
-// Returns true if successful, false if invalid format
-bool parse_float_literal(const char* str, ptx_constant_t* constant);
-
-// Parse predicate literal string and store in ptx_constant_t
-// In PTX, integer constants may be used as predicates, with 0 as False and non-zero as True
-// Returns true if successful, false if invalid format
-bool parse_pred_literal(const char* str, ptx_constant_t* constant);
 
 

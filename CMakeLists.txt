@@ -56,15 +56,31 @@ set(AST_HEADERS
     include/ptx_statespace.h
 )
 
+# Parse library source files
+set(PARSE_SOURCES
+    src/parse/ptx_constant_parse.c
+)
+
+# Parse library headers
+set(PARSE_HEADERS
+    include/parse/ptx_constant_parse.h
+)
+
 # Create prelude library
 add_library(prelude STATIC ${PRELUDE_SOURCES})
 
 # Create AST library
 add_library(ptx_ast STATIC ${AST_SOURCES})
 
+# Create parse library
+add_library(ptx_parse STATIC ${PARSE_SOURCES})
+
+# Link parse library with ptx_ast
+target_link_libraries(ptx_parse PRIVATE ptx_ast)
+
 # Install targets
-install(TARGETS prelude ptx_ast DESTINATION lib)
-install(FILES ${PRELUDE_HEADERS} ${AST_HEADERS} DESTINATION include)
+install(TARGETS prelude ptx_ast ptx_parse DESTINATION lib)
+install(FILES ${PRELUDE_HEADERS} ${AST_HEADERS} ${PARSE_HEADERS} DESTINATION include)
 
 # Test executables
 # Commenting out tests with missing source files
@@ -95,4 +111,9 @@ install(TARGETS initializer_array_test DESTINATION bin)
 # Test for initializer helpers
 add_executable(initializer_test tests/test_initializer.c)
 target_link_libraries(initializer_test prelude)
-install(TARGETS initializer_test DESTINATION bin) 
+install(TARGETS initializer_test DESTINATION bin)
+
+# Test for constant parsing
+add_executable(constant_parse_test tests/test_constant_parse.c)
+target_link_libraries(constant_parse_test ptx_parse)
+install(TARGETS constant_parse_test DESTINATION bin) 
