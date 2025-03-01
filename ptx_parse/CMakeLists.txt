@@ -14,6 +14,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SOURCES
     src/ptx_constant_parse.c
     src/ptx_constant_expr_parse.c
+    src/ptx_comment_parse.c
     src/ptx_directive_parse.c
     src/ptx_identifier_parse.c
     src/ptx_instruction_parse.c
@@ -27,6 +28,7 @@ set(HEADERS
     include/ptx_parse.h
     include/ptx_parse/ptx_constant_parse.h
     include/ptx_parse/ptx_constant_expr_parse.h
+    include/ptx_parse/ptx_comment_parse.h
     include/ptx_parse/ptx_directive_parse.h
     include/ptx_parse/ptx_identifier_parse.h
     include/ptx_parse/ptx_instruction_parse.h

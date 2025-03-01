@@ -52,7 +52,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses variable declarations (e.g., `.global .u32 my_var = 42`) and constructs a `ptx_type_decl_t` AST node.
   - **Details**: Declarations include a state space (e.g., `.global`), type, shape (scalar, vector, or array), name, and optional initializer, as per `ptx_type_decl.h`. This function integrates `parse_type`, `parse_identifier`, and `parse_initializer`, and handles array shapes (e.g., `[19][19]`) and vector sizes (e.g., `.v4`).
 
-- [ ] **parse_comment**
+- [ x ] **parse_comment**
   - **Purpose**: Parses comments (e.g., `// my comment`) and constructs a `comment_t` AST node.
   - **Details**: Comments are informational and typically ignored during execution but preserved in the AST for documentation or analysis, as per `comment.h`. The function extracts the comment text.
 
