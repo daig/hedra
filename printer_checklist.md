@@ -88,6 +88,14 @@ Each pretty printer should:
     - Implementation: `ptx_print/src/c_directive_print.c`
     - Test: `test/ptx_print/test_c_directive_print.c`
 
+- [x] **print_initializer_value**
+  - **Purpose**: Prints a `ptx_initializer_value_t` AST node as an initializer value text (e.g., scalar values, variable addresses, masked values).
+  - **Test**: Create various initializer values → Print → Verify output.
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/ptx_initializer_value_print.h`
+    - Implementation: `ptx_print/src/ptx_initializer_value_print.c`
+    - Test: `test/ptx_print/test_initializer_value_print.c`
+
 ## Implementation Plan
 
 1. Create a new directory `ptx_print` with similar structure to `ptx_parse`

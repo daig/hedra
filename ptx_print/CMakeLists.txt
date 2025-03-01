@@ -16,6 +16,7 @@ set(SOURCES
     src/ptx_expr_print.c
     src/ptx_comment_print.c
     src/c_directive_print.c
+    src/ptx_initializer_value_print.c
 )
 
 # List of header files
@@ -30,6 +31,7 @@ set(HEADERS
     include/ptx_print/ptx_expr_print.h
     include/ptx_print/ptx_comment_print.h
     include/ptx_print/c_directive_print.h
+    include/ptx_print/ptx_initializer_value_print.h
 )
 
 # Create the library
@@ -47,4 +49,5 @@ target_include_directories(ptx_print
 target_link_libraries(ptx_print
     PUBLIC
         ptx_ast
+        prelude
 ) 

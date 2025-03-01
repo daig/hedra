@@ -28,7 +28,7 @@ typedef struct ptx_address_operand {
     bool is_generic;
 } ptx_address_operand_t;
 
-typedef enum ptx_intitializer_value_kind {
+typedef enum ptx_intitializer_value_kind_t {
     INIT_VALUE_SCALAR, // float or int constant expression
     INIT_VALUE_ADDR_VAR, // address of a variable
 } ptx_intitializer_value_kind_t;
@@ -39,10 +39,7 @@ typedef enum ptx_intitializer_value_kind {
  * This can be a scalar value, variable address, or function address.
  */
 typedef struct ptx_initializer_value {
-    enum {
-        INIT_VALUE_SCALAR, // float or int constant expression
-        INIT_VALUE_ADDR_VAR, // address of a variable
-    } kind;
+    ptx_intitializer_value_kind_t kind;
     ptx_mask_value_t mask;
     union {
         ptx_expr_t* scalar_expr;
