@@ -3,7 +3,7 @@
  * @brief Implementation of helper constructor functions for ptx_initializer_value_t variants
  */
 
-#include "ptx_initializer_value_helpers.h"
+#include "ast/ptx_initializer_value_helpers.h"
 #include <string.h>
 
 ptx_initializer_value_t ptx_initializer_value_int(int64_t value) {

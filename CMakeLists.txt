@@ -20,12 +20,9 @@ set(PRELUDE_SOURCES
 
 # Prelude library headers
 set(PRELUDE_HEADERS
-    include/prelude.h
-    include/ptx_array_shape.h
-    include/ptx_initializer_array.h
-    include/ptx_initializer_helpers.h
-    include/ptx_initializer_value_helpers.h
-    include/ptx_type_decl.h
+    include/prelude/prelude.h
+    include/prelude/ptx_array_shape.h
+    include/prelude/ptx_initializer_array.h
 )
 
 # AST library source files
@@ -49,6 +46,7 @@ set(AST_HEADERS
     include/ast/ptx_identifier.h
     include/ast/ptx_constant.h
     include/ast/ptx_constant_expr.h
+    include/ast/ptx_constent_expr.h
     include/ast/ptx_instruction.h
     include/ast/ptx_type_fundamental.h
     include/ast/ptx_alternate_float_format.h
@@ -57,6 +55,15 @@ set(AST_HEADERS
     include/ast/ptx_scalar_float_type.h
     include/ast/ptx_statespace.h
     include/ast/ptx_type_graphics.h
+    include/ast/c_directive.h
+    include/ast/comment.h
+    include/ast/ptx_directive.h
+    include/ast/ptx_label.h
+    include/ast/ptx_statement.h
+    include/ast/ptx_initializer_helpers.h
+    include/ast/ptx_initializer_value_helpers.h
+    include/ast/ptx_initializer_examples.h
+    include/ast/ptx_type_decl.h
 )
 
 # Parse library source files

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "ptx_type_decl.h"
+#include "ast/ptx_type_decl.h"
 
 /**
  * @brief Create an example of a global 2D array of 32-bit signed integers with initializer

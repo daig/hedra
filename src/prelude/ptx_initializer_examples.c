@@ -3,9 +3,9 @@
  * @brief Implementation of example functions demonstrating how to use the helper functions
  */
 
-#include "ptx_initializer_examples.h"
-#include "ptx_initializer_helpers.h"
-#include "ptx_initializer_value_helpers.h"
+#include "ast/ptx_initializer_examples.h"
+#include "ast/ptx_initializer_helpers.h"
+#include "ast/ptx_initializer_value_helpers.h"
 #include <stdlib.h>
 #include <string.h>
 

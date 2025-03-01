@@ -3,7 +3,7 @@
  * @brief Implementation of dynamic multi-dimensional array using ptx_array_shape_t
  */
 
-#include "ptx_initializer_array.h"
+#include "prelude/ptx_initializer_array.h"
 #include <stdlib.h>
 #include <string.h>
 

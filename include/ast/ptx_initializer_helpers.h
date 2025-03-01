@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "ptx_type_decl.h"
-#include "ptx_initializer_array.h"
+#include "ast/ptx_type_decl.h"
+#include "prelude/ptx_initializer_array.h"
 #include <stddef.h>
 #include <stdbool.h>
 

@@ -7,7 +7,7 @@
 /**
  * Array shape utilities for multi-dimensional arrays
  */
-#include "ptx_array_shape.h"
+#include "prelude/ptx_array_shape.h"
 
 /**
  * Add more utility modules here as they are developed

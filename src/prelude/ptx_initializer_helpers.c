@@ -3,8 +3,8 @@
  * @brief Implementation of helper functions for working with PTX initializers
  */
 
-#include "ptx_initializer_helpers.h"
-#include "ptx_initializer_value_helpers.h"
+#include "ast/ptx_initializer_helpers.h"
+#include "ast/ptx_initializer_value_helpers.h"
 #include <stdlib.h>
 #include <string.h>
 

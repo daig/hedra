@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ptx_type_decl.h"
+#include "ast/ptx_type_decl.h"
 #include <stdbool.h>
 
 /**
