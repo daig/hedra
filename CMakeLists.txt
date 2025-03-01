@@ -13,12 +13,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Prelude library source files
 set(PRELUDE_SOURCES
     src/prelude/ptx_array_shape.c
+    src/prelude/ptx_initializer_array.c
 )
 
 # Prelude library headers
 set(PRELUDE_HEADERS
     include/prelude.h
     include/ptx_array_shape.h
+    include/ptx_initializer_array.h
 )
 
 # AST library source files
@@ -81,4 +83,9 @@ install(TARGETS type_test DESTINATION bin)
 # Test executable for the prelude utilities
 add_executable(prelude_test tests/test_prelude.c)
 target_link_libraries(prelude_test prelude)
-install(TARGETS prelude_test DESTINATION bin) 
+install(TARGETS prelude_test DESTINATION bin)
+
+# Test executable for the initializer array
+add_executable(initializer_array_test tests/test_initializer_array.c)
+target_link_libraries(initializer_array_test prelude)
+install(TARGETS initializer_array_test DESTINATION bin) 
