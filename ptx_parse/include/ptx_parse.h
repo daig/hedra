@@ -8,6 +8,7 @@
  * This file includes all public headers from the PTX Parse library
  */
 
-#include "ptx_parse/ptx_constant_parse.h>
+#include <ptx_parse/ptx_constant_parse.h>
+#include <ptx_parse/ptx_directive_parse.h>
 
 #endif /* PTX_PARSE_H */ 

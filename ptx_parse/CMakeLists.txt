@@ -13,12 +13,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Source files
 set(SOURCES
     src/ptx_constant_parse.c
+    src/ptx_directive_parse.c
 )
 
 # Header files
 set(HEADERS
     include/ptx_parse.h
     include/ptx_parse/ptx_constant_parse.h
+    include/ptx_parse/ptx_directive_parse.h
 )
 
 # Create library
