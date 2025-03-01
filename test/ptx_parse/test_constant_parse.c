@@ -56,12 +56,58 @@ void test_pred_parsing() {
     printf("Predicate parsing tests passed!\n");
 }
 
+void test_constant_parsing() {
+    printf("Testing general constant parsing...\n");
+    
+    ptx_constant_t* constant = NULL;
+    
+    // Test integer constant
+    assert(parse_constant("42", &constant) == true);
+    assert(constant->type == PTX_CONST_INT_SIGNED);
+    assert(constant->s64_val == 42);
+    free(constant);
+    
+    // Test hex integer constant
+    assert(parse_constant("0xABC", &constant) == true);
+    assert(constant->type == PTX_CONST_INT_SIGNED);
+    assert(constant->s64_val == 0xABC);
+    free(constant);
+    
+    // Test unsigned integer constant
+    assert(parse_constant("123U", &constant) == true);
+    assert(constant->type == PTX_CONST_INT_UNSIGNED);
+    assert(constant->u64_val == 123);
+    free(constant);
+    
+    // Test float constant
+    assert(parse_constant("3.14159", &constant) == true);
+    assert(constant->type == PTX_CONST_FLOAT);
+    assert(constant->f64_val > 3.14158 && constant->f64_val < 3.14160);
+    free(constant);
+    
+    // Test with whitespace
+    assert(parse_constant("  42  ", &constant) == true);
+    assert(constant->type == PTX_CONST_INT_SIGNED);
+    assert(constant->s64_val == 42);
+    free(constant);
+    
+    // Test invalid constant
+    assert(parse_constant("not_a_constant", &constant) == false);
+    assert(constant == NULL);
+    
+    // Test NULL input
+    assert(parse_constant(NULL, &constant) == false);
+    
+    printf("General constant parsing tests passed!\n");
+}
+
 int main() {
     printf("Running PTX constant parsing tests...\n");
     
     test_int_parsing();
     test_float_parsing();
     test_pred_parsing();
+    test_constant_parsing();
     
     printf("All parsing tests passed!\n");
     return 0;

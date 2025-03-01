@@ -20,12 +20,12 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses labels (e.g., `my_label:`) and constructs a `ptx_label_t` AST node.
   - **Details**: Labels are identifiers followed by a colon, used for control flow (e.g., branching). The function extracts the label name and ensures it conforms to PTX naming rules.
 
-- [ ] **parse_constant**
+- [ x ] **parse_constant**
   - **Purpose**: Parses constant values (e.g., integers, floats, predicates) and constructs a `ptx_constant_t` AST node.
-  - **Details**: Constants appear in instructions or initializers (e.g., `42`, `3.14`, `true`). This function may include sub-functions like:
+  - **Details**: Constants appear in instructions or initializers (e.g., `42`, `3.14`, `1 (as predicate)`). This function may include sub-functions like:
     - `parse_integer_constant` for signed/unsigned integers (e.g., `.s64 -42`, `.u32 0xFF`).
     - `parse_float_constant` for floating-point values (e.g., `.f32 1.5`, `.f64 3.14159`).
-    - `parse_predicate_constant` for predicate values (e.g., `true`, `false`).
+    - `parse_predicate_constant` for predicate values (e.g., `0 (false)`, `1 (true)`).
   - **Note**: Partially implemented in `ptx_constant_parse.c`, as indicated by the `ptx_parse` directory.
 
 - [ ] **parse_identifier**
@@ -41,7 +41,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Details**: A statement combines an optional label with either a directive or instruction (e.g., `my_label: add.s32 %r0, %r1, %r2`). This function integrates `parse_label`, `parse_directive`, and `parse_instruction` to build the AST node, as per `ptx_statement.h`.
 
 - [ ] **parse_expression**
-  - **Purpose**: Parses constant expressions (e.g., `1 + 2`, `!true`) and constructs a `ptx_expr_t` AST node.
+  - **Purpose**: Parses constant expressions (e.g., `1 + 2`, `!0`) and constructs a `ptx_expr_t` AST node.
   - **Details**: Expressions are used in initializers or operands, supporting unary, binary, and ternary operators (e.g., `+`, `*`, `?:`), as defined in `ptx_constant_expr.h`. The function must handle operator precedence and build an expression tree.
 
 - [ ] **parse_initializer**
@@ -62,7 +62,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
 
 ## Notes
 
-- **Existing Implementation**: The `parse_constant` function is partially implemented in `ptx_constant_parse.c` within the `ptx_parse` directory, likely covering integer, float, and predicate constants, as suggested by `test_constant_parse.c`.
+- **Existing Implementation**: The `parse_constant` function is implemented in `ptx_constant_parse.c` within the `ptx_parse` directory, covering integer, float, and predicate constants.
 - **Scope Limitation**: This checklist focuses on parsing functions for individual AST types rather than higher-level constructs like entire modules or function bodies, which might be composed from these functions (e.g., `parse_module` could use `parse_statement` repeatedly).
 - **Assumptions**: The parser assumes a tokenizer or lexer provides input tokens, which these functions then process into AST nodes. Error handling and syntax validation are implementation details not listed here.
 - **PTX Specification**: The functions must align with the PTX language specification (e.g., directives from `ptx_directive.h`, instructions from `ptx_instruction.h`), ensuring all syntactic elements are covered.

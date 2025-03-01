@@ -3,6 +3,7 @@
 #include <string.h>  // For strlen
 #include <stdlib.h>  // For strtoull, NULL
 #include <math.h>    // For strtod and floating-point functions
+#include <ctype.h>   // For isspace function
 
 // Regex patterns for different integer literal formats
 #define HEX_PATTERN "^0[xX][0-9a-fA-F]+U?$"
@@ -140,7 +141,7 @@ bool parse_float_literal(const char* str, ptx_constant_t* constant) {
 // In PTX, integer constants may be used as predicates, with 0 as False and non-zero as True
 // Returns true if successful, false if invalid format
 bool parse_pred_literal(const char* str, ptx_constant_t* constant) {
-    // First try to parse as an integer
+    // Try to parse as an integer
     ptx_constant_t int_constant;
     if (!parse_int_literal(str, &int_constant)) {
         // If it's not a valid integer literal, fail
@@ -162,4 +163,83 @@ bool parse_pred_literal(const char* str, ptx_constant_t* constant) {
     constant->pred_val = (uint8_t)int_value;
     
     return true;
+}
+
+/**
+ * @brief Parse a string as a PTX constant (integer, float, or predicate)
+ * 
+ * This function attempts to parse the input string as one of the PTX constant types:
+ * - Integer (decimal, hexadecimal, octal, or binary)
+ * - Floating-point (decimal or hexadecimal IEEE 754)
+ * - Predicate (integer value where 0=false, non-zero=true)
+ *
+ * @param str The string to parse as a constant
+ * @param constant Pointer to ptx_constant_t* where the result will be stored
+ * @return true if the string was successfully parsed as a constant, false otherwise
+ */
+bool parse_constant(const char* str, ptx_constant_t** constant) {
+    if (!str || !constant) {
+        return false;
+    }
+    
+    // Skip leading whitespace
+    const char* start = str;
+    while (*start && isspace(*start)) {
+        start++;
+    }
+    
+    // Check if we have anything to parse
+    if (!*start) {
+        return false;
+    }
+    
+    // Find the end of the string (ignoring trailing whitespace)
+    const char* end = start + strlen(start);
+    while (end > start && isspace(*(end - 1))) {
+        end--;
+    }
+    
+    // If there's no content after trimming whitespace, return false
+    if (end <= start) {
+        return false;
+    }
+    
+    // Create a copy of the trimmed string
+    size_t len = end - start;
+    char* trimmed = (char*)malloc(len + 1);
+    if (!trimmed) {
+        return false; // Memory allocation failed
+    }
+    
+    strncpy(trimmed, start, len);
+    trimmed[len] = '\0';
+    
+    // Allocate memory for the constant structure
+    *constant = (ptx_constant_t*)malloc(sizeof(ptx_constant_t));
+    if (!*constant) {
+        free(trimmed);
+        return false; // Memory allocation failed
+    }
+    
+    // Try integer first as it's more common
+    bool result = false;
+    
+    if (parse_int_literal(trimmed, *constant)) {
+        result = true;
+    }
+    // Try to parse as a float
+    else if (parse_float_literal(trimmed, *constant)) {
+        result = true;
+    }
+    
+    // Free the trimmed string
+    free(trimmed);
+    
+    // If we couldn't parse the string as a constant, free the allocated memory
+    if (!result) {
+        free(*constant);
+        *constant = NULL;
+    }
+    
+    return result;
 } 
