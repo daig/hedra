@@ -1,54 +1,8 @@
-#include <ptx_ast/ptx_predefined_identifier.h>
-#include <ptx_ast/ptx_identifier.h>
-#include <ptx_ast/ptx_constant.h>
-#include <ptx_ast/ptx_constant_expr.h>
 #include <stdio.h>
-#include <math.h> // For isnan, isinf
 #include <stdlib.h>
 #include <stdbool.h>
-
-const char* ptx_constant_expressions[] = {
-    "42",                    // Decimal integer
-    "0x2A",                  // Hexadecimal integer (42 in decimal)
-    "3.14",                  // Floating-point number
-    "1.23e2",                // Floating-point number in scientific notation (123.0)
-    "-5",                    // Negation of an integer
-    "~0xFF",                 // Bitwise NOT of a hexadecimal integer
-    "10 + 20",               // Addition
-    "30 - 15",               // Subtraction
-    "5 * 6",                 // Multiplication
-    "100 / 4",               // Division
-    "10 % 3",                // Modulus
-    "0xFF & 0x0F",           // Bitwise AND
-    "0xF0 | 0x0F",           // Bitwise OR
-    "0xAA ^ 0x55",           // Bitwise XOR
-    "(2 + 3) * 4",           // Grouping with addition and multiplication
-    "((1 << 2) + 3) * (4 - 2)", // Nested parentheses with shifts and arithmetic
-    "(1 + 2) * (3 - 4) / 5", // Combination of addition, subtraction, multiplication, and division
-    "(0xF << 4) | 0xA",      // Left shift and bitwise OR
-    "-10 + 20",              // Addition with a negative literal
-    "(10 + 3) % 7",          // Addition and modulus
-    "2 * 3 + 4 * 5",         // Testing operator precedence (multiplication before addition)
-    "(1 << 5) & 0x1F",       // Left shift and bitwise AND
-    "1.5 + 2.5",             // Floating-point addition
-    "1.23e2",                // Floating-point literal in scientific notation (repeated for clarity)
-    "1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10", // A sequence of additions
-    "((1 + 2) * (3 - 4)) / (5 % 2) + (6 << 1)" // Complex expression with multiple operations
-};
-
-// Helper function to print float in both decimal and hex representation
-void print_float(float f) {
-    uint32_t bits;
-    memcpy(&bits, &f, sizeof(float));
-    printf("%.10g (hex: 0x%08X)", (double)f, bits);
-}
-
-// Helper function to print double in both decimal and hex representation
-void print_double(double d) {
-    uint64_t bits;
-    memcpy(&bits, &d, sizeof(double));
-    printf("%.17g (hex: 0x%016lX)", d, bits);
-}
+#include <ptx_ast/ptx_constant_expr.h>
+#include <ptx_ast/ptx_constant.h>
 
 // Utility function to create signed integer constant
 ptx_expr_t* create_int_constant(int64_t value) {
@@ -116,208 +70,37 @@ void print_expr_result(const char* expr_str, ptx_expr_t* expr) {
 }
 
 int main() {
-    // Test predefined identifier lookup
-    predefined_identifier_t clock_id = get_predefined_identifier("%clock");
-    printf("Predefined identifier %%clock has value: %d\n", clock_id);
-    
-    predefined_identifier_t invalid_id = get_predefined_identifier("invalid_identifier");
-    printf("Invalid predefined identifier has value: %d\n", invalid_id);
-    
-    // Test user-defined identifier validation
-    const char* valid_ids[] = {
-        "valid_id",
-        "_valid",
-        "$valid",
-        "%valid"
+    // Array of expression strings for reference
+    const char* ptx_constant_expressions[] = {
+        "42",                    // Decimal integer
+        "0x2A",                  // Hexadecimal integer (42 in decimal)
+        "3.14",                  // Floating-point number
+        "1.23e2",                // Floating-point number in scientific notation (123.0)
+        "-5",                    // Negation of an integer
+        "~0xFF",                 // Bitwise NOT of a hexadecimal integer
+        "10 + 20",               // Addition
+        "30 - 15",               // Subtraction
+        "5 * 6",                 // Multiplication
+        "100 / 4",               // Division
+        "10 % 3",                // Modulus
+        "0xFF & 0x0F",           // Bitwise AND
+        "0xF0 | 0x0F",           // Bitwise OR
+        "0xAA ^ 0x55",           // Bitwise XOR
+        "(2 + 3) * 4",           // Grouping with addition and multiplication
+        "((1 << 2) + 3) * (4 - 2)", // Nested parentheses with shifts and arithmetic
+        "(1 + 2) * (3 - 4) / 5", // Combination of addition, subtraction, multiplication, and division
+        "(0xF << 4) | 0xA",      // Left shift and bitwise OR
+        "-10 + 20",              // Addition with a negative literal
+        "(10 + 3) % 7",          // Addition and modulus
+        "2 * 3 + 4 * 5",         // Testing operator precedence (multiplication before addition)
+        "(1 << 5) & 0x1F",       // Left shift and bitwise AND
+        "1.5 + 2.5",             // Floating-point addition
+        "1.23e2",                // Floating-point literal in scientific notation (repeated for clarity)
+        "1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10", // A sequence of additions
+        "((1 + 2) * (3 - 4)) / (5 % 2) + (6 << 1)" // Complex expression with multiple operations
     };
     
-    const char* invalid_ids[] = {
-        "",
-        "invalid@id",
-        "_",
-        "$",
-        "%"
-    };
-    
-    printf("\nTesting valid identifiers:\n");
-    for (int i = 0; i < sizeof(valid_ids) / sizeof(valid_ids[0]); i++) {
-        printf("'%s' is %s\n", valid_ids[i], 
-               is_valid_user_defined_identifier(valid_ids[i]) ? "valid" : "INVALID (unexpected)");
-    }
-    
-    printf("\nTesting invalid identifiers:\n");
-    for (int i = 0; i < sizeof(invalid_ids) / sizeof(invalid_ids[0]); i++) {
-        printf("'%s' is %s\n", invalid_ids[i], 
-               is_valid_user_defined_identifier(invalid_ids[i]) ? "VALID (unexpected)" : "invalid");
-    }
-    
-    // Test PTX constants parsing
-    printf("\nTesting PTX constant parsing:\n");
-    
-    // Test cases for different integer literals
-    const char* int_literals[] = {
-        "123",          // decimal
-        "0xABC",        // hexadecimal
-        "0123",         // octal
-        "0b101",        // binary
-        "123U",         // unsigned decimal
-        "0xABCU",       // unsigned hexadecimal
-        "0123U",        // unsigned octal
-        "0b101U",       // unsigned binary
-        "9223372036854775807",    // max signed 64-bit
-        "18446744073709551615U"   // max unsigned 64-bit
-    };
-    
-    ptx_constant_t constant;
-    
-    for (int i = 0; i < sizeof(int_literals) / sizeof(int_literals[0]); i++) {
-        if (parse_int_literal(int_literals[i], &constant)) {
-            printf("'%s' parsed successfully: ", int_literals[i]);
-            if (constant.type == PTX_CONST_INT_SIGNED) {
-                printf("signed value = %lld (.s64)\n", (long long)constant.s64_val);
-            } else {
-                printf("unsigned value = %llu (.u64)\n", (unsigned long long)constant.u64_val);
-            }
-        } else {
-            printf("'%s' parsing FAILED\n", int_literals[i]);
-        }
-    }
-    
-    // Test invalid integer literals
-    const char* invalid_int_literals[] = {
-        "abc",          // not a number
-        "0xG123",       // invalid hex
-        "09876",        // invalid octal (8 and 9 not allowed)
-        "0b210",        // invalid binary (only 0 and 1 allowed)
-        "-123"          // negative not supported by our parser
-    };
-    
-    printf("\nTesting invalid integer literals:\n");
-    for (int i = 0; i < sizeof(invalid_int_literals) / sizeof(invalid_int_literals[0]); i++) {
-        if (!parse_int_literal(invalid_int_literals[i], &constant)) {
-            printf("'%s' correctly rejected\n", invalid_int_literals[i]);
-        } else {
-            printf("'%s' incorrectly parsed to ", invalid_int_literals[i]);
-            if (constant.type == PTX_CONST_INT_SIGNED) {
-                printf("signed value = %lld (.s64)\n", (long long)constant.s64_val);
-            } else {
-                printf("unsigned value = %llu (.u64)\n", (unsigned long long)constant.u64_val);
-            }
-        }
-    }
-    
-    // Test floating-point literal parsing
-    printf("\nTesting floating-point constant parsing:\n");
-    
-    // Test cases for different floating-point literals
-    const char* float_literals[] = {
-        "123.456",           // simple decimal
-        "0.1",               // decimal less than 1
-        "1e10",              // decimal with positive exponent
-        "1.5e-5",            // decimal with negative exponent
-        "0F3f800000",        // hex representation of 1.0f (32-bit)
-        "0F00000000",        // hex representation of 0.0f (32-bit)
-        "0F7f800000",        // hex representation of +infinity (32-bit)
-        "0Fff800000",        // hex representation of NaN (32-bit)
-        "0D3ff0000000000000" // hex representation of 1.0 (64-bit)
-    };
-    
-    ptx_constant_t float_constant;
-    
-    for (int i = 0; i < sizeof(float_literals) / sizeof(float_literals[0]); i++) {
-        if (parse_float_literal(float_literals[i], &float_constant)) {
-            printf("'%s' parsed successfully: ", float_literals[i]);
-            
-            if (float_constant.type == PTX_CONST_FLOAT) {
-                // 64-bit double-precision
-                printf("double value = ");
-                print_double(float_constant.f64_val);
-                printf(" (.f64)\n");
-            } else if (float_constant.type == PTX_CONST_FLOAT_SINGLE) {
-                // 32-bit single-precision
-                printf("float value = ");
-                print_float(float_constant.f32_val);
-                printf(" (.f32)\n");
-            }
-        } else {
-            printf("'%s' parsing FAILED\n", float_literals[i]);
-        }
-    }
-    
-    // Test invalid floating-point literals
-    const char* invalid_float_literals[] = {
-        "123.456f",          // suffix not allowed
-        "0F123",             // too short for f32 hex
-        "0F123456789",       // too long for f32 hex
-        "0D123",             // too short for f64 hex
-        "123.456.789"        // multiple decimal points
-    };
-    
-    printf("\nTesting invalid floating-point literals:\n");
-    for (int i = 0; i < sizeof(invalid_float_literals) / sizeof(invalid_float_literals[0]); i++) {
-        if (!parse_float_literal(invalid_float_literals[i], &float_constant)) {
-            printf("'%s' correctly rejected\n", invalid_float_literals[i]);
-        } else {
-            printf("'%s' incorrectly parsed\n", invalid_float_literals[i]);
-        }
-    }
-    
-    // Test predicate literal parsing
-    printf("\nTesting predicate constant parsing:\n");
-    
-    // Test cases for predicate literals (using integer constants)
-    const char* pred_literals[] = {
-        "0",                // False (decimal 0)
-        "1",                // True (decimal 1)
-        "42",               // True (non-zero decimal)
-        "0x0",              // False (hex 0)
-        "0x1",              // True (hex 1)
-        "0xFF",             // True (non-zero hex)
-        "0b0",              // False (binary 0)
-        "0b1",              // True (binary 1)
-        "0b101010",         // True (non-zero binary)
-        "00",               // False (octal 0)
-        "01"                // True (octal 1)
-    };
-    
-    ptx_constant_t pred_constant;
-    
-    for (int i = 0; i < sizeof(pred_literals) / sizeof(pred_literals[0]); i++) {
-        if (parse_pred_literal(pred_literals[i], &pred_constant)) {
-            printf("'%s' parsed successfully: predicate value = %s\n", 
-                  pred_literals[i], 
-                  pred_constant.pred_val ? "True" : "False");
-        } else {
-            printf("'%s' parsing FAILED\n", pred_literals[i]);
-        }
-    }
-    
-    // Test invalid predicate literals
-    const char* invalid_pred_literals[] = {
-        "true",             // not an integer
-        "false",            // not an integer
-        "True",             // not an integer
-        "False",            // not an integer
-        "predicate",        // not an integer
-        ""                  // empty string
-    };
-    
-    printf("\nTesting invalid predicate literals:\n");
-    for (int i = 0; i < sizeof(invalid_pred_literals) / sizeof(invalid_pred_literals[0]); i++) {
-        if (!parse_pred_literal(invalid_pred_literals[i], &pred_constant)) {
-            printf("'%s' correctly rejected\n", invalid_pred_literals[i]);
-        } else {
-            printf("'%s' incorrectly parsed to %s\n", 
-                  invalid_pred_literals[i],
-                  pred_constant.pred_val ? "True" : "False");
-        }
-    }
-    
-    // Test WARP_SZ constant
-    printf("\nWARP_SZ value: %d\n", WARP_SZ);
-    
-    // Test expression evaluation
-    printf("\n=== TESTING EXPRESSION EVALUATION ===\n\n");
+    // Create expression trees for each expression
     
     // 1. Decimal integer: 42
     ptx_expr_t* expr1 = create_int_constant(42);

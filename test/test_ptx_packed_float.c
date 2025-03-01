@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "ptx_type.h"
-#include "ptx_type_fundamental.h"
-#include "ptx_type_packed_float.h"
-#include "ptx_scalar_float_type.h"
+#include <ptx_ast/ptx_type.h>
+#include <ptx_ast/ptx_type_fundamental.h>
+#include <ptx_ast/ptx_type_packed_float.h>
+#include <ptx_ast/ptx_scalar_float_type.h>
 
 // Helper function to print element type name
 const char* get_element_type_name(ptx_scalar_float_type_t type) {
