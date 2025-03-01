@@ -10,7 +10,18 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Source files
+# Prelude library source files
+set(PRELUDE_SOURCES
+    src/prelude/ptx_array_shape.c
+)
+
+# Prelude library headers
+set(PRELUDE_HEADERS
+    include/prelude.h
+    include/ptx_array_shape.h
+)
+
+# AST library source files
 set(AST_SOURCES
     src/ptx_predefined_identifier.c
     src/ptx_identifier.c
@@ -23,9 +34,8 @@ set(AST_SOURCES
     src/ptx_scalar_float_type.c
 )
 
-# Header files (not required for compilation, but good to list for IDE integration)
+# AST library headers
 set(AST_HEADERS
-    include/prelude.h
     include/ptx_predefined_identifier.h
     include/ptx_identifier.h
     include/ptx_constant.h
@@ -38,12 +48,15 @@ set(AST_HEADERS
     include/ptx_scalar_float_type.h
 )
 
-# Create a library
+# Create prelude library
+add_library(prelude STATIC ${PRELUDE_SOURCES})
+
+# Create AST library
 add_library(ptx_ast STATIC ${AST_SOURCES})
 
 # Install targets
-install(TARGETS ptx_ast DESTINATION lib)
-install(FILES ${AST_HEADERS} DESTINATION include)
+install(TARGETS prelude ptx_ast DESTINATION lib)
+install(FILES ${PRELUDE_HEADERS} ${AST_HEADERS} DESTINATION include)
 
 # Test executable
 add_executable(ast_test tests/test_ast.c)
@@ -67,4 +80,5 @@ install(TARGETS type_test DESTINATION bin)
 
 # Test executable for the prelude utilities
 add_executable(prelude_test tests/test_prelude.c)
+target_link_libraries(prelude_test prelude)
 install(TARGETS prelude_test DESTINATION bin) 

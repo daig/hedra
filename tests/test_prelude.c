@@ -1,6 +1,7 @@
 #include "../include/prelude.h"
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 void test_shape(size_t ndims, size_t *dims, size_t expected_elements) {
     // Create shape from array
