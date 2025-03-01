@@ -7,6 +7,18 @@
 typedef enum ptx_fundamental_type ptx_fundamental_type_t;
 typedef enum ptx_alternate_float_format ptx_alternate_float_format_t;
 typedef enum ptx_packed_float_type ptx_packed_float_type_t;
+
+/**
+ * Enumeration of PTX type kinds based on the fundamental type categories.
+ */
+typedef enum {
+    PTX_TYPE_KIND_SIGNED_INT,    // Signed integer types (.s8, .s16, .s32, .s64)
+    PTX_TYPE_KIND_UNSIGNED_INT,  // Unsigned integer types (.u8, .u16, .u32, .u64)
+    PTX_TYPE_KIND_FLOAT,         // All floating-point types (.f16, .f32, .f64, .f16x2, etc.)
+    PTX_TYPE_KIND_BITS,          // Untyped bit-based types (.b8, .b16, .b32, .b64, .b128)
+    PTX_TYPE_KIND_PRED           // Predicate type (.pred)
+} ptx_type_kind_t;
+
 typedef enum ptx_scalar_float_type ptx_scalar_float_type_t;
 
 /**
@@ -68,7 +80,11 @@ typedef enum {
     PTX_TYPE_E5M2X4, // Four e5m2 elements
     PTX_TYPE_E2M3X4, // Four e2m3 elements
     PTX_TYPE_E3M2X4, // Four e3m2 elements
-    PTX_TYPE_E2M1X4  // Four e2m1 elements
+    PTX_TYPE_E2M1X4,  // Four e2m1 elements
+
+    // Packed integer types (not fundamental types, instruction types only)
+    PTX_TYPE_U16X2,  // Two u16 elements packed into a 32-bit register
+    PTX_TYPE_S16X2   // Two s16 elements packed into a 32-bit register
 } ptx_type_t;
 
 // The specialized type enums are now defined in their respective header files
@@ -103,4 +119,28 @@ bool ptx_is_packed_float_type(ptx_type_t type);
  * @param type The type to check
  * @return true if the type is a scalar float type, false otherwise
  */
-bool ptx_is_scalar_float_type(ptx_type_t type); 
+bool ptx_is_scalar_float_type(ptx_type_t type);
+
+/**
+ * Check if a type is a packed integer type.
+ *
+ * @param type The type to check
+ * @return true if the type is a packed integer type (.u16x2 or .s16x2), false otherwise
+ */
+bool ptx_is_packed_int_type(ptx_type_t type);
+
+/**
+ * Check if a type is any packed type (either packed float or packed integer).
+ *
+ * @param type The type to check
+ * @return true if the type is any packed type, false otherwise
+ */
+bool ptx_is_packed_type(ptx_type_t type);
+
+/**
+ * Get the kind of a PTX type.
+ *
+ * @param type The type to classify
+ * @return The kind of the type (signed int, unsigned int, float, etc.)
+ */
+ptx_type_kind_t ptx_get_type_kind(ptx_type_t type); 
