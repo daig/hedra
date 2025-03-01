@@ -147,6 +147,16 @@ target_include_directories(expr_print_test PRIVATE
 )
 install(TARGETS expr_print_test DESTINATION bin)
 
+# New test for comment printing
+add_executable(comment_print_test ptx_print/test_comment_print.c)
+target_link_libraries(comment_print_test ptx_print ptx_parse)
+target_include_directories(comment_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS comment_print_test DESTINATION bin)
+
 # New test for identifier printing
 add_executable(identifier_print_test ptx_print/test_identifier_print.c)
 target_link_libraries(identifier_print_test ptx_print ptx_parse)

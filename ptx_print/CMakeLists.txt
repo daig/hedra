@@ -14,6 +14,7 @@ set(SOURCES
     src/ptx_type_print.c
     src/ptx_statement_print.c
     src/ptx_expr_print.c
+    src/ptx_comment_print.c
 )
 
 # List of header files
@@ -26,6 +27,7 @@ set(HEADERS
     include/ptx_print/ptx_type_print.h
     include/ptx_print/ptx_statement_print.h
     include/ptx_print/ptx_expr_print.h
+    include/ptx_print/ptx_comment_print.h
 )
 
 # Create the library
