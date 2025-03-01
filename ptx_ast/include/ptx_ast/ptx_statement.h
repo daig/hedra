@@ -13,4 +13,5 @@ typedef struct ptx_statement_t {
         ptx_directive_t directive;
         ptx_instruction_t instruction;
     };
+    char* original_text; // The original full statement text
 } ptx_statement_t;

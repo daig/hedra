@@ -40,6 +40,7 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
     
     // Initialize statement with null values (especially for the label)
     (*statement)->label.name = NULL;
+    (*statement)->original_text = strdup(str); // Store original text
     
     // Try to parse a label first (it's optional)
     struct ptx_label_t* label = NULL;
@@ -75,6 +76,7 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
         size_t directive_length = current - directive_start;
         char* directive_name = (char*)malloc(directive_length + 1);
         if (!directive_name) {
+            free((*statement)->original_text);
             free(*statement);
             *statement = NULL;
             return false; // Memory allocation failed
@@ -97,6 +99,7 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
             if (has_label) {
                 free((*statement)->label.name);
             }
+            free((*statement)->original_text);
             free(*statement);
             *statement = NULL;
             return false;
@@ -113,6 +116,7 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
         size_t instr_length = current - instr_start;
         char* instr_name = (char*)malloc(instr_length + 1);
         if (!instr_name) {
+            free((*statement)->original_text);
             free(*statement);
             *statement = NULL;
             return false; // Memory allocation failed
@@ -135,6 +139,7 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
             if (has_label) {
                 free((*statement)->label.name);
             }
+            free((*statement)->original_text);
             free(*statement);
             *statement = NULL;
             return false;

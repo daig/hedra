@@ -15,6 +15,7 @@ void test_directive_statements() {
     assert(statement->tag == DIRECTIVE);
     assert(statement->directive == PTX_DIRECTIVE_VERSION);
     assert(statement->label.name == NULL);
+    free(statement->original_text);
     free(statement);
     
     // Test directive statement with leading whitespace
@@ -22,6 +23,7 @@ void test_directive_statements() {
     assert(statement->tag == DIRECTIVE);
     assert(statement->directive == PTX_DIRECTIVE_TARGET);
     assert(statement->label.name == NULL);
+    free(statement->original_text);
     free(statement);
     
     printf("Directive statements parsing tests passed!\n");
@@ -37,6 +39,7 @@ void test_instruction_statements() {
     assert(statement->tag == INSTRUCTION);
     assert(statement->instruction == ADD);
     assert(statement->label.name == NULL);
+    free(statement->original_text);
     free(statement);
     
     // Test instruction statement with leading whitespace
@@ -44,6 +47,7 @@ void test_instruction_statements() {
     assert(statement->tag == INSTRUCTION);
     assert(statement->instruction == MOV);
     assert(statement->label.name == NULL);
+    free(statement->original_text);
     free(statement);
     
     printf("Instruction statements parsing tests passed!\n");
@@ -61,6 +65,7 @@ void test_labeled_statements() {
     assert(statement->label.name != NULL);
     assert(strcmp(statement->label.name, "my_label") == 0);
     free(statement->label.name);
+    free(statement->original_text);
     free(statement);
     
     // Test labeled instruction statement
@@ -70,6 +75,7 @@ void test_labeled_statements() {
     assert(statement->label.name != NULL);
     assert(strcmp(statement->label.name, "loop_start") == 0);
     free(statement->label.name);
+    free(statement->original_text);
     free(statement);
     
     // Test labeled statement with spacing
@@ -79,6 +85,7 @@ void test_labeled_statements() {
     assert(statement->label.name != NULL);
     assert(strcmp(statement->label.name, "end") == 0);
     free(statement->label.name);
+    free(statement->original_text);
     free(statement);
     
     printf("Labeled statements parsing tests passed!\n");

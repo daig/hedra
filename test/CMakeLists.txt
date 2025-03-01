@@ -155,4 +155,14 @@ target_include_directories(type_print_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_parse/include
     ${CMAKE_SOURCE_DIR}/ptx_print/include
 )
-install(TARGETS type_print_test DESTINATION bin) 
+install(TARGETS type_print_test DESTINATION bin)
+
+# New test for statement printing
+add_executable(statement_print_test ptx_print/test_statement_print.c)
+target_link_libraries(statement_print_test ptx_print ptx_parse)
+target_include_directories(statement_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS statement_print_test DESTINATION bin) 

@@ -12,6 +12,7 @@ set(SOURCES
     src/ptx_constant_print.c
     src/ptx_identifier_print.c
     src/ptx_type_print.c
+    src/ptx_statement_print.c
 )
 
 # List of header files
@@ -22,6 +23,7 @@ set(HEADERS
     include/ptx_print/ptx_constant_print.h
     include/ptx_print/ptx_identifier_print.h
     include/ptx_print/ptx_type_print.h
+    include/ptx_print/ptx_statement_print.h
 )
 
 # Create the library
