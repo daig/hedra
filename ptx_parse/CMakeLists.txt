@@ -1,0 +1,57 @@
+cmake_minimum_required(VERSION 3.10)
+
+# Library name and version
+project(ptx_parse VERSION 1.0)
+
+# Specify the C standard
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED True)
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Source files
+set(SOURCES
+    src/ptx_constant_parse.c
+)
+
+# Header files
+set(HEADERS
+    include/ptx_parse.h
+    include/ptx_parse/ptx_constant_parse.h
+)
+
+# Create library
+add_library(ptx_parse STATIC ${SOURCES})
+
+# Set include directories for targets that link against this library
+target_include_directories(ptx_parse
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+# Set dependencies
+find_package(prelude REQUIRED)
+find_package(ptx_ast REQUIRED)
+target_link_libraries(ptx_parse PRIVATE prelude::prelude ptx_ast::ptx_ast)
+
+# Install targets
+install(TARGETS ptx_parse 
+    EXPORT ptx_parseTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+)
+
+# Install headers
+install(FILES ${HEADERS} DESTINATION include)
+install(DIRECTORY include/ptx_parse DESTINATION include)
+
+# Export targets
+install(EXPORT ptx_parseTargets
+    FILE ptx_parseTargets.cmake
+    NAMESPACE ptx_parse::
+    DESTINATION lib/cmake/ptx_parse
+) 

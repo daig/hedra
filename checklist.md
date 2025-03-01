@@ -1,0 +1,9 @@
+-  [x] create the new directory structure
+- [x] see which files from each of the 3 libraries need to be moved
+- [x] for each file ("foo"), move the files into the new libraries toplevel directories under either lib1/includue/lib1/foo.h or lib1/src/foo.c
+- [x] for each library directory, create a include/lib1.h file that includes (using local "" syntax) all the other .h files in include/lib1/
+- [x] create a new CMakeLists.txt in each library directory to build similarly to how we currently do in the toplevel cmakelists, but also exposing the new lib1.h file
+- [x] modify the toplevel cmakelists to 
+- [x] make sure all the cmakelists correctly set the include path so that `#include <lib1/foo.h>` syntax works.
+- [x] look at which files need to have their include statements modified
+- [x] modify the include statements to use the new <lib1/foo.h> style where possible

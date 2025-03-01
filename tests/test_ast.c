@@ -1,7 +1,7 @@
-#include "ast/ptx_predefined_identifier.h"
-#include "ast/ptx_identifier.h"
-#include "ast/ptx_constant.h"
-#include "ast/ptx_constant_expr.h"
+#include <ptx_ast/>ptx_predefined_identifier.h>
+#include <ptx_ast/>ptx_identifier.h>
+#include <ptx_ast/>ptx_constant.h>
+#include <ptx_ast/>ptx_constant_expr.h>
 #include <stdio.h>
 #include <math.h> // For isnan, isinf
 #include <stdlib.h>

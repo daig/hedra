@@ -1,0 +1,11 @@
+#pragma once
+enum c_directive_t {
+    C_DIRECTIVE_INCLUDE,
+    C_DIRECTIVE_DEFINE,
+    C_DIRECTIVE_IF,
+    C_DIRECTIVE_IFDEF,
+    C_DIRECTIVE_ELSE,
+    C_DIRECTIVE_ENDIF,
+    C_DIRECTIVE_LINE,
+    C_DIRECTIVE_FILE
+};

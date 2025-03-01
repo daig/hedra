@@ -6,9 +6,9 @@
  * to create and manipulate various types of PTX initializers.
  */
 
-#include "ast/ptx_initializer_helpers.h"
-#include "ast/ptx_initializer_value_helpers.h"
-#include "ast/ptx_type_decl.h"
+#include <ptx_ast/>ptx_initializer_helpers.h>
+#include <ptx_ast/>ptx_initializer_value_helpers.h>
+#include <ptx_ast/>ptx_type_decl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
