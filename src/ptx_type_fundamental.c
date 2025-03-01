@@ -3,18 +3,30 @@
 #include <stdbool.h>
 
 /**
+ * Helper function to convert from general ptx_type_t to ptx_fundamental_type_t
+ */
+ptx_fundamental_type_t ptx_type_to_fundamental_type(ptx_type_t type) {
+    if (ptx_is_fundamental_type(type)) {
+        return (ptx_fundamental_type_t)type;
+    }
+    return (ptx_fundamental_type_t)-1; // Return -1 for non-fundamental types
+}
+
+/**
  * Check if a given type is restricted to only ld, st, and cvt instructions
  * (u8, s8, and b8 types have this restriction)
  */
 bool ptx_type_restricted_to_load_store_convert(ptx_fundamental_type_t type) {
-    return (type == PTX_TYPE_U8 || type == PTX_TYPE_S8 || type == PTX_TYPE_B8);
+    return (type == PTX_FUNDAMENTAL_TYPE_U8 || 
+            type == PTX_FUNDAMENTAL_TYPE_S8 || 
+            type == PTX_FUNDAMENTAL_TYPE_B8);
 }
 
 /**
  * Check if a type is a floating point half-precision type (f16 or f16x2)
  */
 bool ptx_type_is_half_precision(ptx_fundamental_type_t type) {
-    return (type == PTX_TYPE_F16 || type == PTX_TYPE_F16X2);
+    return (type == PTX_FUNDAMENTAL_TYPE_F16 || type == PTX_FUNDAMENTAL_TYPE_F16X2);
 }
 
 /**
@@ -64,7 +76,9 @@ bool ptx_instruction_is_conversion(ptx_instruction_t instruction) {
  */
 bool ptx_type_allowed_for_float_conversion(ptx_fundamental_type_t type) {
     // f16 can be converted to/from f32 and f64
-    return (type == PTX_TYPE_F16 || type == PTX_TYPE_F32 || type == PTX_TYPE_F64);
+    return (type == PTX_FUNDAMENTAL_TYPE_F16 || 
+            type == PTX_FUNDAMENTAL_TYPE_F32 || 
+            type == PTX_FUNDAMENTAL_TYPE_F64);
 }
 
 /**
@@ -78,7 +92,7 @@ bool ptx_type_compatible_with_instruction(ptx_fundamental_type_t type, ptx_instr
     }
     
     // Check f16 compatibility rules
-    if (type == PTX_TYPE_F16) {
+    if (type == PTX_FUNDAMENTAL_TYPE_F16) {
         // f16 is allowed in conversions with f32/f64
         if (instruction == CVT) {
             return true; // The actual conversion target would need to be checked elsewhere
@@ -90,7 +104,7 @@ bool ptx_type_compatible_with_instruction(ptx_fundamental_type_t type, ptx_instr
     }
     
     // Check f16x2 compatibility rules
-    if (type == PTX_TYPE_F16X2) {
+    if (type == PTX_FUNDAMENTAL_TYPE_F16X2) {
         return ptx_instruction_is_half_precision(instruction) ||
                ptx_instruction_is_texture_fetch(instruction);
     }

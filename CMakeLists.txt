@@ -18,6 +18,9 @@ set(AST_SOURCES
     src/ptx_constant_expr.c
     src/ptx_type_fundamental.c
     src/ptx_alternate_float_format.c
+    src/ptx_type_packed_float.c
+    src/ptx_type.c
+    src/ptx_scalar_float_type.c
 )
 
 # Header files (not required for compilation, but good to list for IDE integration)
@@ -29,6 +32,9 @@ set(AST_HEADERS
     include/ptx_instruction.h
     include/ptx_type_fundamental.h
     include/ptx_alternate_float_format.h
+    include/ptx_type_packed_float.h
+    include/ptx_type.h
+    include/ptx_scalar_float_type.h
 )
 
 # Create a library
@@ -46,4 +52,14 @@ install(TARGETS ast_test DESTINATION bin)
 # Test executable for constant expressions
 add_executable(expr_test tests/test_constant_expr.c)
 target_link_libraries(expr_test ptx_ast)
-install(TARGETS expr_test DESTINATION bin) 
+install(TARGETS expr_test DESTINATION bin)
+
+# Test executable for packed float types
+add_executable(packed_float_test test/test_ptx_packed_float.c)
+target_link_libraries(packed_float_test ptx_ast)
+install(TARGETS packed_float_test DESTINATION bin)
+
+# Test executable for the combined type system
+add_executable(type_test test/test_ptx_type.c)
+target_link_libraries(type_test ptx_ast)
+install(TARGETS type_test DESTINATION bin) 
