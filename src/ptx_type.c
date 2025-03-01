@@ -3,6 +3,7 @@
 #include "ptx_alternate_float_format.h"
 #include "ptx_type_packed_float.h"
 #include "ptx_scalar_float_type.h"
+#include "ptx_type_graphics.h"
 
 bool ptx_is_fundamental_type(ptx_type_t type) {
     // Check if the type is within the range of fundamental types
@@ -46,7 +47,7 @@ bool ptx_is_packed_type(ptx_type_t type) {
 }
 
 ptx_type_kind_t ptx_get_type_kind(ptx_type_t type) {
-    // Classify the PTX type into one of the five kind categories
+    // Classify the PTX type into one of the six kind categories
     
     // Check for signed integer types
     if (type >= PTX_TYPE_S8 && type <= PTX_TYPE_S64) {
@@ -76,6 +77,11 @@ ptx_type_kind_t ptx_get_type_kind(ptx_type_t type) {
     // Check for predicate type
     if (type == PTX_TYPE_PRED) {
         return PTX_TYPE_KIND_PRED;
+    }
+    
+    // Check for graphics types
+    if (type >= PTX_TYPE_TEXREF && type <= PTX_TYPE_SURFREF) {
+        return PTX_TYPE_KIND_GRAPHICS;
     }
     
     // All remaining types are floating-point types (fundamental, alternate, or packed)

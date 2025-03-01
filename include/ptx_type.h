@@ -7,6 +7,7 @@
 typedef enum ptx_fundamental_type ptx_fundamental_type_t;
 typedef enum ptx_alternate_float_format ptx_alternate_float_format_t;
 typedef enum ptx_packed_float_type ptx_packed_float_type_t;
+typedef enum ptx_graphics_type ptx_graphics_type_t;
 
 /**
  * Enumeration of PTX type kinds based on the fundamental type categories.
@@ -16,7 +17,8 @@ typedef enum {
     PTX_TYPE_KIND_UNSIGNED_INT,  // Unsigned integer types (.u8, .u16, .u32, .u64)
     PTX_TYPE_KIND_FLOAT,         // All floating-point types (.f16, .f32, .f64, .f16x2, etc.)
     PTX_TYPE_KIND_BITS,          // Untyped bit-based types (.b8, .b16, .b32, .b64, .b128)
-    PTX_TYPE_KIND_PRED           // Predicate type (.pred)
+    PTX_TYPE_KIND_PRED,          // Predicate type (.pred)
+    PTX_TYPE_KIND_GRAPHICS       // Graphics types (.texref, .samplerref, .surfref)
 } ptx_type_kind_t;
 
 typedef enum ptx_scalar_float_type ptx_scalar_float_type_t;
@@ -84,7 +86,12 @@ typedef enum {
 
     // Packed integer types (not fundamental types, instruction types only)
     PTX_TYPE_U16X2,  // Two u16 elements packed into a 32-bit register
-    PTX_TYPE_S16X2   // Two s16 elements packed into a 32-bit register
+    PTX_TYPE_S16X2,   // Two s16 elements packed into a 32-bit register
+    
+    // Graphics-related types
+    PTX_TYPE_TEXREF,     // Texture reference type
+    PTX_TYPE_SAMPLERREF, // Sampler reference type
+    PTX_TYPE_SURFREF     // Surface reference type
 } ptx_type_t;
 
 // The specialized type enums are now defined in their respective header files
@@ -143,4 +150,12 @@ bool ptx_is_packed_type(ptx_type_t type);
  * @param type The type to classify
  * @return The kind of the type (signed int, unsigned int, float, etc.)
  */
-ptx_type_kind_t ptx_get_type_kind(ptx_type_t type); 
+ptx_type_kind_t ptx_get_type_kind(ptx_type_t type);
+
+/**
+ * Check if a type is a graphics type (.texref, .samplerref, or .surfref).
+ *
+ * @param type The type to check
+ * @return true if the type is a graphics type, false otherwise
+ */
+bool ptx_is_graphics_type(ptx_type_t type); 
