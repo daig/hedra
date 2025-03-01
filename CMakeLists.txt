@@ -11,6 +11,7 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 add_subdirectory(prelude)
 add_subdirectory(ptx_ast)
 add_subdirectory(ptx_parse)
+add_subdirectory(ptx_print)
 
 # Add test directory
 add_subdirectory(test)

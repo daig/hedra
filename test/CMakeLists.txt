@@ -95,4 +95,34 @@ install(TARGETS comment_parse_test DESTINATION bin)
 add_executable(c_directive_parse_test ptx_parse/test_c_directive_parse.c)
 target_link_libraries(c_directive_parse_test ptx_parse)
 target_include_directories(c_directive_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
-install(TARGETS c_directive_parse_test DESTINATION bin) 
+install(TARGETS c_directive_parse_test DESTINATION bin)
+
+# Tests for ptx_print
+add_executable(directive_print_test ptx_print/test_directive_print.c)
+target_link_libraries(directive_print_test ptx_print ptx_parse)
+target_include_directories(directive_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS directive_print_test DESTINATION bin)
+
+# New test for instruction printing
+add_executable(instruction_print_test ptx_print/test_instruction_print.c)
+target_link_libraries(instruction_print_test ptx_print ptx_parse)
+target_include_directories(instruction_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS instruction_print_test DESTINATION bin)
+
+# New test for label printing
+add_executable(label_print_test ptx_print/test_label_print.c)
+target_link_libraries(label_print_test ptx_print ptx_parse)
+target_include_directories(label_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS label_print_test DESTINATION bin) 
