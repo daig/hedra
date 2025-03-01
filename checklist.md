@@ -1,18 +1,18 @@
 # PTX Parser Checklist
 
-This document provides a checklist of all the parsing functions required for the "hedra" project's PTX (Parallel Thread Execution) parser, including those needed for intermediate Abstract Syntax Tree (AST) types. The project is focused on parsing PTX, an assembly language for NVIDIA GPUs, and the checklist is derived from the project’s directory structure, file map, and AST definitions.
+This document provides a checklist of all the parsing functions required for the "hedra" project's PTX (Parallel Thread Execution) parser, including those needed for intermediate Abstract Syntax Tree (AST) types. The project is focused on parsing PTX, an assembly language for NVIDIA GPUs, and the checklist is derived from the project's directory structure, file map, and AST definitions.
 
 The goal is to identify parsing functions that will process PTX source code into corresponding AST nodes, as defined in the `ptx_ast` module. These functions will form the core of the parser, handling various syntactic elements such as directives, instructions, labels, constants, identifiers, types, statements, expressions, initializers, variable declarations, comments, and C-style directives.
 
-Below is the checklist, organized as a series of tasks with descriptions of each parsing function’s purpose. Each item is marked with a checkbox `[ ]` to indicate that implementation is pending, unless otherwise noted.
+Below is the checklist, organized as a series of tasks with descriptions of each parsing function's purpose. Each item is marked with a checkbox `[ ]` to indicate that implementation is pending, unless otherwise noted.
 
 ## Parsing Functions
 
-- [ ] **parse_directive**
+- [ x ] **parse_directive**
   - **Purpose**: Parses PTX directives (e.g., `.version`, `.target`, `.func`, `.entry`) and constructs a `ptx_directive_t` AST node.
   - **Details**: Directives define the environment, scope, or entry points in PTX code (e.g., `.version 7.0`, `.entry kernel()`). The function must recognize directive keywords from the `ptx_directive.h` enum and handle their specific syntax.
 
-- [ ] **parse_instruction**
+- [ x ] **parse_instruction**
   - **Purpose**: Parses PTX instructions (e.g., `add`, `mul`, `ld`) and constructs a `ptx_instruction_t` AST node.
   - **Details**: Instructions are the operational core of PTX, such as `add.s32 %r0, %r1, %r2`. This function needs to identify instruction opcodes from `ptx_instruction.h` and parse their operands, which may include registers, constants, or types.
 

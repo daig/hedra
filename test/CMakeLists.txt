@@ -53,4 +53,10 @@ install(TARGETS constant_parse_test DESTINATION bin)
 add_executable(directive_parse_test ptx_parse/test_directive_parse.c)
 target_link_libraries(directive_parse_test ptx_parse)
 target_include_directories(directive_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
-install(TARGETS directive_parse_test DESTINATION bin) 
+install(TARGETS directive_parse_test DESTINATION bin)
+
+# New test for instruction parsing
+add_executable(instruction_parse_test ptx_parse/test_instruction_parse.c)
+target_link_libraries(instruction_parse_test ptx_parse)
+target_include_directories(instruction_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
+install(TARGETS instruction_parse_test DESTINATION bin) 
