@@ -257,4 +257,24 @@ target_include_directories(initializer_array_parse_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_print/include
     ${CMAKE_SOURCE_DIR}/prelude/include
 )
-install(TARGETS initializer_array_parse_test DESTINATION bin) 
+install(TARGETS initializer_array_parse_test DESTINATION bin)
+
+# Add initializer_array_roundtrip_test executable
+add_executable(initializer_array_roundtrip_test
+    ptx_parse/test_initializer_array_roundtrip.c
+)
+
+target_link_libraries(initializer_array_roundtrip_test
+    ptx_parse
+    ptx_print
+)
+
+target_include_directories(initializer_array_roundtrip_test
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+
+install(TARGETS initializer_array_roundtrip_test DESTINATION bin) 
