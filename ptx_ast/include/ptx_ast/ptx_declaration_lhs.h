@@ -34,5 +34,6 @@ typedef struct ptx_declaration_lhs_t {
     ptx_type_t type;
     ptx_shape_t shape;
     char* name;
+    bool has_initializer;
 } ptx_declaration_type_t;
 

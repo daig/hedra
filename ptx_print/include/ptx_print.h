@@ -20,5 +20,6 @@
 #include <ptx_print/c_directive_print.h>
 #include <ptx_print/ptx_initializer_value_print.h>
 #include <ptx_print/ptx_statespace_print.h>
+#include <ptx_print/ptx_declaration_lhs_print.h>
 
 #endif /* PTX_PRINT_H */ 

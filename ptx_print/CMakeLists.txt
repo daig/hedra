@@ -18,6 +18,7 @@ set(SOURCES
     src/c_directive_print.c
     src/ptx_initializer_value_print.c
     src/ptx_statespace_print.c
+    src/ptx_declaration_lhs_print.c
 )
 
 # List of header files
@@ -35,6 +36,7 @@ set(HEADERS
     include/ptx_print/c_directive_print.h
     include/ptx_print/ptx_initializer_value_print.h
     include/ptx_print/ptx_statespace_print.h
+    include/ptx_print/ptx_declaration_lhs_print.h
 )
 
 # Create the library

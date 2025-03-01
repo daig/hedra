@@ -217,6 +217,16 @@ target_include_directories(initializer_value_print_test PRIVATE
 )
 install(TARGETS initializer_value_print_test DESTINATION bin)
 
+# Add the new test for declaration LHS printing
+add_executable(declaration_lhs_print_test ptx_print/test_declaration_lhs_print.c)
+target_link_libraries(declaration_lhs_print_test ptx_print)
+target_include_directories(declaration_lhs_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS declaration_lhs_print_test DESTINATION bin)
+
 # Add after other parse tests
 add_executable(initializer_value_parse_test ptx_parse/test_initializer_value_parse.c)
 target_link_libraries(initializer_value_parse_test ptx_parse ptx_print)
