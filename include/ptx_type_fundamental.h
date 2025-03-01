@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "ptx_instruction.h"
 
 typedef enum {

@@ -16,6 +16,8 @@ set(AST_SOURCES
     src/ptx_identifier.c
     src/ptx_constant.c
     src/ptx_constant_expr.c
+    src/ptx_type_fundamental.c
+    src/ptx_alternate_float_format.c
 )
 
 # Header files (not required for compilation, but good to list for IDE integration)
@@ -24,6 +26,9 @@ set(AST_HEADERS
     include/ptx_identifier.h
     include/ptx_constant.h
     include/ptx_constant_expr.h
+    include/ptx_instruction.h
+    include/ptx_type_fundamental.h
+    include/ptx_alternate_float_format.h
 )
 
 # Create a library

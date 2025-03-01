@@ -1,5 +1,6 @@
 #pragma once
-enum ptx_instruction_t { 
+
+typedef enum ptx_instruction { 
     ABS,
     CVTA,
     MEMBAR,
@@ -134,5 +135,5 @@ enum ptx_instruction_t {
     SETMAXNREG,
     VABSDIFF2
 
-};
+} ptx_instruction_t;
 
