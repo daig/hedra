@@ -52,6 +52,7 @@ static const char* get_type_name(ptx_type_t type) {
         case PTX_TYPE_U8: return "PTX_TYPE_U8";
         case PTX_TYPE_U16: return "PTX_TYPE_U16";
         case PTX_TYPE_PRED: return "PTX_TYPE_PRED";
+        case PTX_TYPE_B8: return "PTX_TYPE_B8";
         default: return "OTHER_TYPE";
     }
 }
@@ -345,6 +346,57 @@ void test_complex_arrays() {
     printf("\nComplex array tests passed!\n\n");
 }
 
+/**
+ * Test parsing of declaration LHS with alignment specifier
+ */
+void test_alignment_parsing() {
+    printf("Testing declaration LHS parsing with alignment...\n");
+    
+    // Test with alignment
+    const char* test_str = ".const .align 4 .b8 bar[8]";
+    ptx_declaration_type_t lhs = {0};
+    
+    printf("About to parse: \"%s\"\n", test_str);
+    bool result = parse_declaration_lhs(test_str, &lhs);
+    printf("Parsing \"%s\": %s\n", test_str, result ? "SUCCESS" : "FAILED");
+    
+    if (result) {
+        printf("State space: %s (%d)\n", get_state_space_name(lhs.statespace), lhs.statespace);
+        printf("Type: %s (%d)\n", get_type_name(lhs.type), lhs.type);
+        printf("Shape kind: %d\n", lhs.shape.kind);
+        printf("Name: \"%s\"\n", lhs.name);
+        printf("Alignment: %u\n", lhs.alignment);
+        
+        assert(lhs.statespace == PTX_STATE_CONST);
+        assert(lhs.type == PTX_TYPE_B8);
+        assert(lhs.shape.kind == SHAPE_ARRAY);
+        assert(strcmp(lhs.name, "bar") == 0);
+        assert(lhs.alignment == 4);
+        
+        // Check array dimensions
+        assert(lhs.shape.array_shape != NULL);
+        assert(ptx_array_shape_ndims(lhs.shape.array_shape) == 1);
+        assert(lhs.shape.array_shape[0] == 8);
+        
+        cleanup_decl_lhs(&lhs);
+        printf("Alignment parsing test passed!\n\n");
+    } else {
+        printf("Alignment parsing test failed!\n\n");
+        assert(0 && "Alignment parsing should not fail");
+    }
+    
+    // Test with non-power-of-2 alignment (should fail)
+    const char* invalid_test_str = ".const .align 3 .b8 bar[8]";
+    memset(&lhs, 0, sizeof(lhs));
+    
+    printf("About to parse invalid alignment: \"%s\"\n", invalid_test_str);
+    result = parse_declaration_lhs(invalid_test_str, &lhs);
+    printf("Parsing \"%s\": %s\n", invalid_test_str, result ? "SUCCESS" : "FAILED");
+    
+    assert(!result && "Non-power-of-2 alignment should fail");
+    printf("Invalid alignment test passed!\n\n");
+}
+
 int main() {
     printf("PTX Declaration LHS Parse-Print Roundtrip Tests\n");
     printf("=============================================\n\n");
@@ -364,8 +416,15 @@ int main() {
     test_parse_print_roundtrip(".shared .u8 mailbox[128]");
     test_parse_print_roundtrip(".global .u32 index[8]");
     
+    // Test with alignment
+    test_parse_print_roundtrip(".const .align 4 .b8 bar[8]");
+    test_parse_print_roundtrip(".global .align 8 .u32 aligned_var");
+    
     // Test complex multi-dimensional arrays
     test_complex_arrays();
+    
+    // Test alignment parsing
+    test_alignment_parsing();
     
     printf("All tests passed!\n");
     return 0;

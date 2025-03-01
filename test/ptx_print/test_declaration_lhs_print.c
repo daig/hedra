@@ -84,6 +84,38 @@ void test_array_declaration() {
     printf("Array declaration test passed!\n\n");
 }
 
+/**
+ * Test printing a declaration with alignment
+ */
+void test_print_with_alignment() {
+    printf("Testing printing declaration with alignment...\n");
+    
+    ptx_declaration_type_t decl = {
+        .statespace = PTX_STATE_CONST,
+        .type = PTX_TYPE_B8,
+        .shape = {
+            .kind = SHAPE_ARRAY,
+            .array_shape = ptx_array_shape_create(1, 8)
+        },
+        .name = "bar",
+        .alignment = 4
+    };
+    
+    char buffer[BUFFER_SIZE];
+    int result = print_declaration_lhs_to_buffer(buffer, BUFFER_SIZE, &decl);
+    
+    printf("Printed declaration: \"%s\"\n", buffer);
+    printf("Expected: \".const .align 4 .b8 bar[8]\"\n");
+    
+    assert(result > 0);
+    assert(strcmp(buffer, ".const .align 4 .b8 bar[8]") == 0);
+    
+    // Cleanup
+    ptx_array_shape_free(decl.shape.array_shape);
+    
+    printf("Alignment printing test passed!\n\n");
+}
+
 int main() {
     printf("Running PTX declaration LHS printer tests\n");
     printf("=========================================\n\n");
@@ -91,6 +123,7 @@ int main() {
     test_scalar_declaration();
     test_vector_declaration();
     test_array_declaration();
+    test_print_with_alignment();
     
     printf("All tests passed!\n");
     return 0;

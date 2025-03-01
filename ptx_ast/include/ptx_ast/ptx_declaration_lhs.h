@@ -38,5 +38,6 @@ typedef struct ptx_declaration_type {
     ptx_shape_t shape;
     char* name;
     bool has_initializer;
+    unsigned int alignment;  // Alignment in bytes, 0 means no alignment specified
 } ptx_declaration_type_t;
 

@@ -143,6 +143,41 @@ static bool parse_array_dimensions(const char** str_ptr, ptx_array_shape_t* arra
 }
 
 /**
+ * Helper function to parse alignment specifier (.align byte-count)
+ */
+static bool parse_alignment(const char** str_ptr, unsigned int* alignment) {
+    const char* str = *str_ptr;
+    
+    // Skip whitespace
+    str = skip_whitespace(str);
+    
+    // Check for .align
+    if (strncmp(str, ".align", 6) != 0) {
+        return false;
+    }
+    
+    str += 6;
+    str = skip_whitespace(str);
+    
+    // Parse the alignment value
+    char* endptr;
+    unsigned long align_val = strtoul(str, &endptr, 10);
+    
+    if (endptr == str) {
+        return false; // No digits found
+    }
+    
+    // Check if alignment is a power of 2
+    if (align_val == 0 || (align_val & (align_val - 1)) != 0) {
+        return false; // Not a power of 2
+    }
+    
+    *alignment = (unsigned int)align_val;
+    *str_ptr = endptr;
+    return true;
+}
+
+/**
  * Internal version of parse_state_space that returns the updated position in the string
  */
 static bool internal_parse_state_space(const char* str, ptx_state_space_t* space, const char** end_ptr) {
@@ -237,6 +272,20 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
     
     if (!*current) {
         return false; // Unexpected end of string
+    }
+    
+    // Check for alignment specifier (.align)
+    if (strncmp(current, ".align", 6) == 0) {
+        if (!parse_alignment(&current, &lhs->alignment)) {
+            return false;
+        }
+        
+        // Skip whitespace after alignment
+        current = skip_whitespace(current);
+        
+        if (!*current) {
+            return false; // Unexpected end of string
+        }
     }
     
     // Check for vector size specifier (.v2 or .v4)

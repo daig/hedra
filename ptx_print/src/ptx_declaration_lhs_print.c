@@ -54,6 +54,13 @@ bool print_declaration_lhs_to_file(FILE* file, const ptx_declaration_type_t* lhs
         return false;
     }
 
+    // Print alignment (if specified)
+    if (lhs->alignment > 0) {
+        if (fprintf(file, " .align %u", lhs->alignment) < 0) {
+            return false;
+        }
+    }
+
     // Print vector size (if applicable)
     if (lhs->shape.kind == SHAPE_VECTOR) {
         if (fputc(' ', file) < 0) {
