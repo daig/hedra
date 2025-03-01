@@ -32,7 +32,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses identifiers (e.g., variable names, register names) and constructs a `ptx_identifier_t` AST node.
   - **Details**: Identifiers can be user-defined (e.g., `my_var`) or predefined (e.g., `%clock`), as per `ptx_identifier.h` and `ptx_predefined_identifier.h`. The function must distinguish between these categories and validate syntax.
 
-- [ ] **parse_type**
+- [ x ] **parse_type**
   - **Purpose**: Parses type specifiers (e.g., `.u32`, `.f64`, `.texref`) and constructs a `ptx_type_t` AST node.
   - **Details**: Types include fundamental types (e.g., `.s16`, `.f32`), graphics types (e.g., `.texref`), and alternate float formats (e.g., `.bf16`), as defined in `ptx_type.h`, `ptx_type_fundamental.h`, `ptx_type_graphics.h`, and `ptx_alternate_float_format.h`. This function must handle type keywords and their context.
 
