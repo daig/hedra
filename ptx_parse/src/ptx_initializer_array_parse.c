@@ -114,6 +114,10 @@ static bool deep_copy_initializer_value(ptx_initializer_value_t* dest, const ptx
         } else {
             dest->addr_var.var_name = NULL;
         }
+        
+        // Copy the offset and is_generic fields as well
+        dest->addr_var.offset = src->addr_var.offset;
+        dest->addr_var.is_generic = src->addr_var.is_generic;
     }
     
     return true;

@@ -44,11 +44,14 @@ static int print_address_operand(FILE* file, const ptx_address_operand_t* addr) 
     // Print variable name
     count += fprintf(file, "%s", addr->var_name);
     
-    // Add offset if non-zero
+    // Always include the offset, even if it's zero
     if (addr->offset > 0) {
         count += fprintf(file, "+%" PRId64, addr->offset);
     } else if (addr->offset < 0) {
         count += fprintf(file, "%" PRId64, addr->offset);
+    } else {
+        // Explicitly include +0 for zero offsets to preserve the offset during round-trip
+        count += fprintf(file, "+0");
     }
     
     // Close generic() wrapper if needed

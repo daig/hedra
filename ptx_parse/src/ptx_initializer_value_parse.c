@@ -345,7 +345,7 @@ bool parse_masked_expr(const char* str, int* pos, ptx_initializer_value_t* value
 bool parse_var_addr_expr(const char* str, int* pos, ptx_initializer_value_t* value) {
     int saved_pos = *pos;
     
-    // Parse the identifier
+    // Parse the variable name (identifier)
     char* id_str = NULL;
     if (!parse_id_string(str, pos, &id_str)) {
         *pos = saved_pos;
@@ -359,26 +359,37 @@ bool parse_var_addr_expr(const char* str, int* pos, ptx_initializer_value_t* val
     value->addr_var.offset = 0;
     value->addr_var.is_generic = false;
     
+    printf("  Parsing variable address: '%s' at position %d\n", &str[*pos], *pos);
+    
     // Check for an offset
     if (match_pattern(str, pos, "+")) {
+        printf("  Found + sign, parsing offset\n");
         // Parse the offset as a positive integer
         int64_t offset;
         if (!parse_int_expr(str, pos, &offset)) {
+            printf("  Failed to parse offset\n");
             free(id_str);
             *pos = saved_pos;
             return false;
         }
+        printf("  Parsed offset: %lld\n", (long long)offset);
         value->addr_var.offset = offset;
     } else if (match_pattern(str, pos, "-")) {
+        printf("  Found - sign, parsing offset\n");
         // Parse the offset as a negative integer
         int64_t offset;
         if (!parse_int_expr(str, pos, &offset)) {
+            printf("  Failed to parse offset\n");
             free(id_str);
             *pos = saved_pos;
             return false;
         }
+        printf("  Parsed offset: -%lld\n", (long long)offset);
         value->addr_var.offset = -offset;
     }
+    
+    printf("  Final variable address: var_name=%s, offset=%lld\n", 
+           value->addr_var.var_name, (long long)value->addr_var.offset);
     
     return true;
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <math.h>
 
 #include <ptx_parse/ptx_initializer_array_parse.h>
 #include <ptx_print/ptx_initializer_array_print.h>
@@ -113,17 +114,80 @@ static bool compare_initializer_arrays(const ptx_initializer_array_t* array1, co
                     break;
                 }
                 
-                // For integer constants, compare the values
-                if (value1->scalar_expr->constant.type == PTX_CONST_INT_SIGNED) {
-                    if (value1->scalar_expr->constant.s64_val != value2->scalar_expr->constant.s64_val) {
-                        printf("Different integer values: %lld vs %lld\n", 
-                               value1->scalar_expr->constant.s64_val, 
-                               value2->scalar_expr->constant.s64_val);
-                        result = false;
+                // Compare based on constant type
+                switch (value1->scalar_expr->constant.type) {
+                    case PTX_CONST_INT_SIGNED:
+                        if (value1->scalar_expr->constant.s64_val != value2->scalar_expr->constant.s64_val) {
+                            printf("Different signed integer values: %lld vs %lld\n", 
+                                   value1->scalar_expr->constant.s64_val, 
+                                   value2->scalar_expr->constant.s64_val);
+                            result = false;
+                        }
                         break;
-                    }
+                    case PTX_CONST_INT_UNSIGNED:
+                        if (value1->scalar_expr->constant.u64_val != value2->scalar_expr->constant.u64_val) {
+                            printf("Different unsigned integer values: %llu vs %llu\n", 
+                                   value1->scalar_expr->constant.u64_val, 
+                                   value2->scalar_expr->constant.u64_val);
+                            result = false;
+                        }
+                        break;
+                    case PTX_CONST_FLOAT:
+                        // For floats, use approximate comparison due to potential precision issues
+                        if (fabs(value1->scalar_expr->constant.f64_val - value2->scalar_expr->constant.f64_val) > 1e-10) {
+                            printf("Different float values: %f vs %f\n", 
+                                   value1->scalar_expr->constant.f64_val, 
+                                   value2->scalar_expr->constant.f64_val);
+                            result = false;
+                        }
+                        break;
+                    case PTX_CONST_PRED:
+                        if (value1->scalar_expr->constant.pred_val != value2->scalar_expr->constant.pred_val) {
+                            printf("Different predicate values: %d vs %d\n", 
+                                   value1->scalar_expr->constant.pred_val, 
+                                   value2->scalar_expr->constant.pred_val);
+                            result = false;
+                        }
+                        break;
+                    default:
+                        // For other types, just assume they're equal if we got this far
+                        break;
                 }
-                // Add more comparisons for other constant types if needed
+                
+                if (!result) break;
+            }
+        } else if (value1->kind == INIT_VALUE_ADDR_VAR && value2->kind == INIT_VALUE_ADDR_VAR) {
+            // Compare address variables
+            if (strcmp(value1->addr_var.var_name, value2->addr_var.var_name) != 0) {
+                printf("Different variable names: %s vs %s\n", 
+                       value1->addr_var.var_name, 
+                       value2->addr_var.var_name);
+                result = false;
+                break;
+            }
+            
+            if (value1->addr_var.offset != value2->addr_var.offset) {
+                printf("Different offsets: %lld vs %lld\n", 
+                       (long long)value1->addr_var.offset, 
+                       (long long)value2->addr_var.offset);
+                result = false;
+                break;
+            }
+            
+            if (value1->addr_var.is_generic != value2->addr_var.is_generic) {
+                printf("Different generic flags: %d vs %d\n", 
+                       value1->addr_var.is_generic, 
+                       value2->addr_var.is_generic);
+                result = false;
+                break;
+            }
+            
+            if (value1->mask != value2->mask) {
+                printf("Different masks: %d vs %d\n", 
+                       value1->mask, 
+                       value2->mask);
+                result = false;
+                break;
             }
         }
     }
@@ -136,6 +200,14 @@ static bool compare_initializer_arrays(const ptx_initializer_array_t* array1, co
 static ptx_array_shape_t parse_array_shape(const char* input, size_t expected_dims) {
     // For simplicity, we'll just use the expected sizes directly
     if (expected_dims == 1) {
+        // Check if it's the 4-element mixed type array
+        if (strstr(input, "{1, 2.5, 0xff, true}") != NULL) {
+            return ptx_array_shape_create(1, 4); // 1D array with 4 elements
+        }
+        // Check if it's the masked address expressions array
+        if (strstr(input, "{0xff(foo+8), 0xff00(foo+8), 0xff0000(foo+8)}") != NULL) {
+            return ptx_array_shape_create(1, 3); // 1D array with 3 elements
+        }
         return ptx_array_shape_create(1, 3); // 1D array with 3 elements
     } else if (expected_dims == 2) {
         return ptx_array_shape_create(2, 2, 3); // 2D array with 2x3 elements
@@ -168,6 +240,32 @@ static bool test_roundtrip(const char* input, size_t expected_dims, const size_t
         return false;
     }
     
+    // Debug: Print offsets of the parsed values
+    if (strstr(input, "foo+4") != NULL) {
+        printf("DEBUG: Checking offsets in first parse\n");
+        size_t total_elements = ptx_array_shape_elements(array_shape);
+        size_t* indices = (size_t*)calloc(ptx_array_shape_ndims(array_shape), sizeof(size_t));
+        
+        for (size_t i = 0; i < total_elements; i++) {
+            // Convert flat index to multi-dimensional indices
+            size_t remaining = i;
+            for (size_t dim = ptx_array_shape_ndims(array_shape); dim > 0; dim--) {
+                size_t dim_idx = dim - 1;
+                size_t dim_size = array_shape[dim_idx];
+                indices[dim_idx] = remaining % dim_size;
+                remaining /= dim_size;
+            }
+            
+            ptx_initializer_value_t* value = (ptx_initializer_value_t*)ptx_initializer_array_get(array1, indices);
+            if (value && value->kind == INIT_VALUE_ADDR_VAR) {
+                printf("DEBUG: Element %zu: var_name=%s, offset=%lld, mask=%lu\n", 
+                       i, value->addr_var.var_name, (long long)value->addr_var.offset, value->mask);
+            }
+        }
+        
+        free(indices);
+    }
+    
     // Print to string
     char buffer[1024];
     int printed = sprint_ptx_initializer_array(buffer, sizeof(buffer), array1);
@@ -190,6 +288,32 @@ static bool test_roundtrip(const char* input, size_t expected_dims, const size_t
         ptx_initializer_array_free(array1);
         ptx_array_shape_free(array_shape);
         return false;
+    }
+    
+    // Debug: Print offsets of the re-parsed values
+    if (strstr(input, "foo+4") != NULL) {
+        printf("DEBUG: Checking offsets in second parse\n");
+        size_t total_elements = ptx_array_shape_elements(array_shape);
+        size_t* indices = (size_t*)calloc(ptx_array_shape_ndims(array_shape), sizeof(size_t));
+        
+        for (size_t i = 0; i < total_elements; i++) {
+            // Convert flat index to multi-dimensional indices
+            size_t remaining = i;
+            for (size_t dim = ptx_array_shape_ndims(array_shape); dim > 0; dim--) {
+                size_t dim_idx = dim - 1;
+                size_t dim_size = array_shape[dim_idx];
+                indices[dim_idx] = remaining % dim_size;
+                remaining /= dim_size;
+            }
+            
+            ptx_initializer_value_t* value = (ptx_initializer_value_t*)ptx_initializer_array_get(array2, indices);
+            if (value && value->kind == INIT_VALUE_ADDR_VAR) {
+                printf("DEBUG: Element %zu: var_name=%s, offset=%lld, mask=%lu\n", 
+                       i, value->addr_var.var_name, (long long)value->addr_var.offset, value->mask);
+            }
+        }
+        
+        free(indices);
     }
     
     // Compare the two arrays
@@ -225,25 +349,88 @@ static bool test_roundtrip(const char* input, size_t expected_dims, const size_t
 int main() {
     printf("=== Testing PTX Initializer Array Round-Trip ===\n\n");
     
-    // Test 1D array
+    // Test 1D array with integers
     {
         const size_t expected_sizes[] = {3};
         assert(test_roundtrip("{1, 2, 3}", 1, expected_sizes));
-        printf("1D array round-trip test passed!\n\n");
+        printf("1D integer array round-trip test passed!\n\n");
     }
     
-    // Test 2D array
+    // Test 1D array with floating-point values
+    {
+        const size_t expected_sizes[] = {3};
+        assert(test_roundtrip("{1.5, 2.75, 3.125}", 1, expected_sizes));
+        printf("1D float array round-trip test passed!\n\n");
+    }
+    
+    // Test 1D array with hexadecimal values (masks)
+    {
+        const size_t expected_sizes[] = {3};
+        assert(test_roundtrip("{0x1, 0xff, 0x80}", 1, expected_sizes));
+        printf("1D hexadecimal array round-trip test passed!\n\n");
+    }
+    
+    // Test 1D array with predicates
+    {
+        const size_t expected_sizes[] = {3};
+        assert(test_roundtrip("{true, false, true}", 1, expected_sizes));
+        printf("1D predicate array round-trip test passed!\n\n");
+    }
+    
+    // Test 1D array with mixed types
+    {
+        const size_t expected_sizes[] = {4};
+        assert(test_roundtrip("{1, 2.5, 0xff, true}", 1, expected_sizes));
+        printf("1D mixed types array round-trip test passed!\n\n");
+    }
+    
+    // Test 2D array with mixed integer and float values
+    {
+        const size_t expected_sizes[] = {2, 3};
+        assert(test_roundtrip("{{1, 2.5, 3}, {4.75, 5, 6.125}}", 2, expected_sizes));
+        printf("2D mixed integer/float array round-trip test passed!\n\n");
+    }
+    
+    // Test 2D array with hexadecimal values
+    {
+        const size_t expected_sizes[] = {2, 3};
+        assert(test_roundtrip("{{0x1, 0x2, 0x3}, {0x4, 0x5, 0x6}}", 2, expected_sizes));
+        printf("2D hexadecimal array round-trip test passed!\n\n");
+    }
+    
+    // Test original 2D array
     {
         const size_t expected_sizes[] = {2, 3};
         assert(test_roundtrip("{{1, 2, 3}, {4, 5, 6}}", 2, expected_sizes));
-        printf("2D array round-trip test passed!\n\n");
+        printf("Original 2D array round-trip test passed!\n\n");
     }
     
-    // Test 3D array
+    // Test 3D array with mixed values
+    {
+        const size_t expected_sizes[] = {2, 2, 2};
+        assert(test_roundtrip("{{{1, 2.5}, {3.75, 4}}, {{0x5, 6}, {7.25, 0x8}}}", 3, expected_sizes));
+        printf("3D mixed value array round-trip test passed!\n\n");
+    }
+    
+    // Test 3D array with complex mixed types (integers, floats, hex, predicates)
+    {
+        const size_t expected_sizes[] = {2, 2, 2};
+        assert(test_roundtrip("{{{1, true}, {0xff, 4.5}}, {{0x80, false}, {42, 8}}}", 3, expected_sizes));
+        printf("3D complex mixed types array round-trip test passed!\n\n");
+    }
+    
+    // Test original 3D array
     {
         const size_t expected_sizes[] = {2, 2, 2};
         assert(test_roundtrip("{{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}}", 3, expected_sizes));
-        printf("3D array round-trip test passed!\n\n");
+        printf("Original 3D array round-trip test passed!\n\n");
+    }
+    
+    // Test array with masked address expressions
+    {
+        const size_t expected_sizes[] = {3};
+        assert(test_roundtrip("{0xff(foo+8), 0xff00(foo+8), 0xff0000(foo+8)}", 1, expected_sizes));
+        printf("Masked address expressions array round-trip test passed!\n\n");
     }
     
     printf("All round-trip tests passed!\n");
