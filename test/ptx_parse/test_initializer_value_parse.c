@@ -37,7 +37,7 @@ void test_parse_print_roundtrip(const char* input_str) {
     ptx_initializer_value_t value;
     setup_test_initializer_value(&value);
     
-    bool success = parse_initializer_value(input_str, &value);
+    bool success = parse_initializer_value(input_str, &value, PTX_TYPE_F32);
     printf("  Initial parse success: %s\n", success ? "true" : "false");
     if (!success) {
         printf("  [FAIL] ❌ Failed to parse input: '%s'\n", input_str);
@@ -51,7 +51,7 @@ void test_parse_print_roundtrip(const char* input_str) {
     // Verify that parsing the printed output gives the same result
     ptx_initializer_value_t value2;
     setup_test_initializer_value(&value2);
-    success = parse_initializer_value(buffer, &value2);
+    success = parse_initializer_value(buffer, &value2, PTX_TYPE_F32);
     printf("  Re-parse success: %s\n", success ? "true" : "false");
     if (!success) {
         printf("  [FAIL] ❌ Failed to re-parse: '%s'\n", buffer);
@@ -228,7 +228,7 @@ void test_invalid_inputs() {
     // Empty string
     printf("Testing empty string\n");
     setup_test_initializer_value(&value);
-    bool success = parse_initializer_value("", &value);
+    bool success = parse_initializer_value("", &value, PTX_TYPE_F32);
     printf("  Parse success: %s (expected: false)\n", success ? "true ❌" : "false ✅");
     if (success) {
         printf("  [FAIL] ❌ Expected parsing to fail but it succeeded\n");
@@ -240,7 +240,7 @@ void test_invalid_inputs() {
     // Invalid mask
     printf("Testing invalid mask\n");
     setup_test_initializer_value(&value);
-    success = parse_initializer_value("0xF(42)", &value);
+    success = parse_initializer_value("0xF(42)", &value, PTX_TYPE_F32);
     printf("  Parse success: %s (expected: false)\n", success ? "true ❌" : "false ✅");
     if (success) {
         printf("  [FAIL] ❌ Expected parsing to fail but it succeeded\n");
@@ -252,7 +252,7 @@ void test_invalid_inputs() {
     // Invalid generic syntax
     printf("Testing invalid generic syntax\n");
     setup_test_initializer_value(&value);
-    success = parse_initializer_value("generic foo", &value);
+    success = parse_initializer_value("generic foo", &value, PTX_TYPE_F32);
     printf("  Parse success: %s (expected: false)\n", success ? "true ❌" : "false ✅");
     if (success) {
         printf("  [FAIL] ❌ Expected parsing to fail but it succeeded\n");
@@ -264,7 +264,7 @@ void test_invalid_inputs() {
     // Invalid offset syntax
     printf("Testing invalid offset syntax\n");
     setup_test_initializer_value(&value);
-    success = parse_initializer_value("foo + ", &value);
+    success = parse_initializer_value("foo + ", &value, PTX_TYPE_F32);
     printf("  Parse success: %s (expected: false)\n", success ? "true ❌" : "false ✅");
     if (success) {
         printf("  [FAIL] ❌ Expected parsing to fail but it succeeded\n");
@@ -290,7 +290,7 @@ int main() {
     
     const char* test_float = "3.14159";
     printf("  [EXPECTED: Should parse successfully]\n");
-    bool success = parse_initializer_value(test_float, &value);
+    bool success = parse_initializer_value(test_float, &value, PTX_TYPE_F32);
     printf("Parse result for '%s': %s\n", test_float, success ? "SUCCESS ✅" : "FAILED ❌");
     
     if (success) {

@@ -449,7 +449,7 @@ bool parse_generic_addr_expr(const char* str, int* pos, ptx_initializer_value_t*
     return true;
 }
 
-bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t* value) {
+bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t* value, ptx_type_t data_type) {
     int saved_pos = *pos;
     
     printf("Attempting to parse: '%s' at position %d\n", str, *pos);
@@ -553,8 +553,16 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
                     printf("  Conversion successful\n");
                     // Create a constant for the float
                     ptx_constant_t constant;
-                    constant.type = PTX_CONST_FLOAT_SINGLE;
-                    constant.f32_val = (float)value_f64;
+                    
+                    // Set the constant type based on the data type
+                    if (data_type == PTX_TYPE_F64) {
+                        constant.type = PTX_CONST_FLOAT;
+                        constant.f64_val = value_f64;
+                    } else {
+                        // Default to F32 if not explicitly F64
+                        constant.type = PTX_CONST_FLOAT_SINGLE;
+                        constant.f32_val = (float)value_f64;
+                    }
                     
                     // Create an expression for the constant
                     ptx_expr_t* expr = create_constant_expr(constant);
@@ -697,7 +705,7 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
     return false;
 }
 
-bool parse_initializer_value(const char* str, ptx_initializer_value_t* value) {
+bool parse_initializer_value(const char* str, ptx_initializer_value_t* value, ptx_type_t data_type) {
     if (!str || !value) {
         return false;
     }
@@ -706,7 +714,7 @@ bool parse_initializer_value(const char* str, ptx_initializer_value_t* value) {
     skip_whitespace(str, &pos);
     
     // Parse a scalar initializer value
-    if (!parse_scalar_initializer(str, &pos, value)) {
+    if (!parse_scalar_initializer(str, &pos, value, data_type)) {
         return false;
     }
     

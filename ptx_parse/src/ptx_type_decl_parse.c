@@ -206,7 +206,7 @@ bool parse_ptx_decl(const char* str, ptx_decl_t* decl) {
         // Parse the initializer based on the shape of the declaration
         if (decl->type.shape.kind == SHAPE_ARRAY) {
             // Parse array initializer
-            return parse_initializer_array(str, &pos, decl->type.shape.array_shape, &decl->array);
+            return parse_initializer_array(str, &pos, decl->type.shape.array_shape, &decl->array, decl->type.type);
         } else if (decl->type.shape.kind == SHAPE_VECTOR) {
             // For vector initializers, we'll create a temporary 1D array shape
             // with size equal to the vector size (2 or 4)
@@ -218,7 +218,7 @@ bool parse_ptx_decl(const char* str, ptx_decl_t* decl) {
             }
             
             // Parse the vector initializer as a 1D array
-            bool result = parse_initializer_array(str, &pos, temp_shape, &decl->array);
+            bool result = parse_initializer_array(str, &pos, temp_shape, &decl->array, decl->type.type);
             
             // Free the temporary shape
             ptx_array_shape_free(temp_shape);
@@ -234,7 +234,7 @@ bool parse_ptx_decl(const char* str, ptx_decl_t* decl) {
             // Initialize to zero
             memset(decl->scalar, 0, sizeof(ptx_initializer_value_t));
             
-            return parse_scalar_initializer(str, &pos, decl->scalar);
+            return parse_scalar_initializer(str, &pos, decl->scalar, decl->type.type);
         }
     } else {
         // No initializer

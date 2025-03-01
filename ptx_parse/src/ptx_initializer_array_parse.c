@@ -163,6 +163,7 @@ static int set_initializer_value(ptx_initializer_array_t* array, const size_t* i
  * @param array_shape Shape of the array
  * @param dim_index Current dimension index (0 for outermost dimension)
  * @param current_indices Current indices array (will be modified during recursion)
+ * @param data_type The data type of the elements
  * @return true if parsing successful, false otherwise
  */
 static bool parse_nested_array_initializer(
@@ -171,7 +172,8 @@ static bool parse_nested_array_initializer(
     ptx_initializer_array_t* array, 
     ptx_array_shape_t array_shape,
     size_t dim_index,
-    size_t* current_indices
+    size_t* current_indices,
+    ptx_type_t data_type
 ) {
     // Skip whitespace
     skip_whitespace(str, pos);
@@ -195,7 +197,7 @@ static bool parse_nested_array_initializer(
             ptx_initializer_value_t value;
             memset(&value, 0, sizeof(value)); // Initialize to zero
             
-            if (!parse_scalar_initializer(str, pos, &value)) {
+            if (!parse_scalar_initializer(str, pos, &value, data_type)) {
                 return false;
             }
             
@@ -241,7 +243,7 @@ static bool parse_nested_array_initializer(
             ptx_initializer_value_t value;
             memset(&value, 0, sizeof(value)); // Initialize to zero
             
-            if (!parse_scalar_initializer(str, pos, &value)) {
+            if (!parse_scalar_initializer(str, pos, &value, data_type)) {
                 return false;
             }
             
@@ -263,7 +265,7 @@ static bool parse_nested_array_initializer(
         } else {
             // For non-innermost dimensions, we need to handle the next level of nesting
             // Recursive call to handle the next dimension
-            if (!parse_nested_array_initializer(str, pos, array, array_shape, dim_index + 1, current_indices)) {
+            if (!parse_nested_array_initializer(str, pos, array, array_shape, dim_index + 1, current_indices, data_type)) {
                 return false;
             }
             
@@ -320,7 +322,10 @@ static bool parse_nested_array_initializer(
     return true;
 }
 
-bool parse_initializer_array(const char* str, int* pos, ptx_array_shape_t array_shape, ptx_initializer_array_t** array) {
+/**
+ * Parse an initializer array from a string
+ */
+bool parse_initializer_array(const char* str, int* pos, ptx_array_shape_t array_shape, ptx_initializer_array_t** array, ptx_type_t data_type) {
     if (!str || !pos || !array_shape || !array) {
         return false;
     }
@@ -374,7 +379,7 @@ bool parse_initializer_array(const char* str, int* pos, ptx_array_shape_t array_
     }
     
     // Parse the nested array initializer
-    bool success = parse_nested_array_initializer(str, pos, *array, array_shape, 0, current_indices);
+    bool success = parse_nested_array_initializer(str, pos, *array, array_shape, 0, current_indices, data_type);
     
     // Free the current indices array
     free(current_indices);

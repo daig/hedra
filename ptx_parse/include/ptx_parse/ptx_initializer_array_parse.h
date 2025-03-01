@@ -12,6 +12,7 @@
  * @param pos Pointer to current position in string (will be updated)
  * @param array_shape Shape of the array to parse
  * @param array Pointer to initializer array pointer that will be allocated and filled
+ * @param data_type The data type of the elements
  * @return true if parsing successful, false otherwise
  */
-bool parse_initializer_array(const char* str, int* pos, ptx_array_shape_t array_shape, ptx_initializer_array_t** array); 
+bool parse_initializer_array(const char* str, int* pos, ptx_array_shape_t array_shape, ptx_initializer_array_t** array, ptx_type_t data_type); 

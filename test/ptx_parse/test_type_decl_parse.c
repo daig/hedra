@@ -322,6 +322,59 @@ static void test_vector_declaration_with_initializer() {
     free_ptx_decl(&decl);
 }
 
+// Add new test for f64 vector
+static void test_f64_vector_declaration_with_initializer() {
+    printf("\n=== Testing f64 vector declaration with initializer ===\n");
+    
+    const char* test_str = ".global .v4 .f64 my_f64_vector = {1.0, 2.0, 3.0, 4.0}";
+    ptx_decl_t decl;
+    
+    printf("Parsing: \"%s\"\n", test_str);
+    bool result = parse_ptx_decl(test_str, &decl);
+    printf("Parse result: %s\n", result ? "SUCCESS" : "FAILED");
+    assert(result && "Parsing failed");
+    
+    // Verify the declaration
+    assert(decl.type.statespace == PTX_STATE_GLOBAL);
+    assert(decl.type.type == PTX_TYPE_F64);
+    assert(decl.type.shape.kind == SHAPE_VECTOR);
+    assert(decl.type.shape.vector_size == VECTOR_SIZE_V4);
+    assert(strcmp(decl.type.name, "my_f64_vector") == 0);
+    assert(decl.type.has_initializer == true);
+    
+    // Verify the initializer array exists
+    assert(decl.array != NULL);
+    
+    // Check vector elements
+    printf("F64 vector initializer values:\n");
+    size_t indices[1];
+    
+    // Check each element of the vector
+    for (size_t i = 0; i < 4; i++) {
+        indices[0] = i;
+        ptx_initializer_value_t* value = (ptx_initializer_value_t*)ptx_initializer_array_get(decl.array, indices);
+        assert(value != NULL && "Vector initializer element not found");
+        assert(value->kind == INIT_VALUE_SCALAR && "Vector initializer element is not a scalar");
+        
+        // Evaluate the initializer expression
+        ptx_constant_t result_value;
+        bool eval_result = evaluate_expr(value->scalar_expr, &result_value);
+        assert(eval_result && "Failed to evaluate expression");
+        assert(result_value.type == PTX_CONST_FLOAT && "Vector initializer element is not a double");
+        
+        double expected_value = (double)(i + 1.0);
+        printf("  [%zu] = [Scalar Expression] Value: %f (Expected: %f)\n", 
+               i, result_value.f64_val, expected_value);
+        assert(fabs(result_value.f64_val - expected_value) < 0.0001 && 
+               "Vector initializer value is incorrect");
+    }
+    
+    printf("F64 vector declaration verified successfully\n");
+    
+    // Free resources
+    free_ptx_decl(&decl);
+}
+
 // Main test function
 int main() {
     printf("=== PTX Declaration Parser Tests ===\n");
@@ -332,6 +385,7 @@ int main() {
     test_array_declaration_no_initializer();
     test_array_declaration_with_initializer();
     test_vector_declaration_with_initializer();
+    test_f64_vector_declaration_with_initializer();
     
     printf("\nAll tests passed successfully!\n");
     return 0;

@@ -47,18 +47,20 @@ bool parse_generic_addr_expr(const char* str, int* pos, ptx_initializer_value_t*
 /**
  * @brief Parse a scalar initializer value from a string
  * 
- * @param str String to parse
- * @param pos Pointer to current position in string (will be updated)
- * @param value Pointer to initializer value to be filled in
- * @return true if parsing successful, false otherwise
+ * @param str The string to parse
+ * @param pos Pointer to the current position in the string (will be updated)
+ * @param value Pointer to the initializer value structure to fill
+ * @param data_type Optional type information for the data being initialized (can be NULL)
+ * @return true if parsing succeeded, false otherwise
  */
-bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t* value);
+bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t* value, ptx_type_t data_type);
 
 /**
  * @brief Parse an initializer value from a string
  * 
  * @param str String to parse
  * @param value Pointer to initializer value to be filled in
+ * @param data_type The data type of the elements to be parsed
  * @return true if parsing successful, false otherwise
  */
-bool parse_initializer_value(const char* str, ptx_initializer_value_t* value); 
+bool parse_initializer_value(const char* str, ptx_initializer_value_t* value, ptx_type_t data_type); 
