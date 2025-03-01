@@ -40,7 +40,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses a complete PTX statement and constructs a `ptx_statement_t` AST node.
   - **Details**: A statement combines an optional label with either a directive or instruction (e.g., `my_label: add.s32 %r0, %r1, %r2`). This function integrates `parse_label`, `parse_directive`, and `parse_instruction` to build the AST node, as per `ptx_statement.h`.
 
-- [ ] **parse_expression**
+- [ x ] **parse_expression**
   - **Purpose**: Parses constant expressions (e.g., `1 + 2`, `!0`) and constructs a `ptx_expr_t` AST node.
   - **Details**: Expressions are used in initializers or operands, supporting unary, binary, and ternary operators (e.g., `+`, `*`, `?:`), as defined in `ptx_constant_expr.h`. The function must handle operator precedence and build an expression tree.
 

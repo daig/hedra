@@ -49,6 +49,12 @@ target_link_libraries(constant_parse_test ptx_parse)
 target_include_directories(constant_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
 install(TARGETS constant_parse_test DESTINATION bin)
 
+# New test for constant expression parsing
+add_executable(constant_expr_parse_test ptx_parse/test_constant_expr_parse.c)
+target_link_libraries(constant_expr_parse_test ptx_parse)
+target_include_directories(constant_expr_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
+install(TARGETS constant_expr_parse_test DESTINATION bin)
+
 # New test for directive parsing
 add_executable(directive_parse_test ptx_parse/test_directive_parse.c)
 target_link_libraries(directive_parse_test ptx_parse)

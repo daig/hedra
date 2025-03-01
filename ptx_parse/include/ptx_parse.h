@@ -9,6 +9,7 @@
  */
 
 #include <ptx_parse/ptx_constant_parse.h>
+#include <ptx_parse/ptx_constant_expr_parse.h>
 #include <ptx_parse/ptx_directive_parse.h>
 #include <ptx_parse/ptx_identifier_parse.h>
 #include <ptx_parse/ptx_instruction_parse.h>
