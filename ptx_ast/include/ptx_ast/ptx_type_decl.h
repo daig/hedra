@@ -51,7 +51,6 @@ typedef struct ptx_initializer_value {
 
 typedef struct ptx_decl_t {
     ptx_declaration_type_t type;
-    bool has_initializer;
     union {
         ptx_initializer_array_t* array;
         ptx_initializer_value_t* scalar;

@@ -29,7 +29,10 @@ typedef struct ptx_shape {
     };
 } ptx_shape_t;
 
-typedef struct ptx_declaration_lhs_t {
+/**
+ * Structure representing the left-hand side of a PTX declaration.
+ */
+typedef struct ptx_declaration_type {
     ptx_state_space_t statespace;
     ptx_type_t type;
     ptx_shape_t shape;

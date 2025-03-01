@@ -276,7 +276,7 @@ bool parse_masked_expr(const char* str, int* pos, ptx_initializer_value_t* value
     ptx_expr_t* expr = NULL;
     if (parse_expr(inner_content, &expr)) {
         printf("  Successfully parsed inner content as expression\n");
-        value->kind = 0; // INIT_VALUE_SCALAR
+        value->kind = INIT_VALUE_SCALAR;
         value->mask = mask;
         value->scalar_expr = expr;
         
@@ -325,7 +325,7 @@ bool parse_masked_expr(const char* str, int* pos, ptx_initializer_value_t* value
     if (parse_expr_precedence(inner_content, &inner_pos, &expr, 0) &&
         inner_content[inner_pos] == '\0') {
         printf("  Successfully parsed inner content with precedence parsing\n");
-        value->kind = 0; // INIT_VALUE_SCALAR
+        value->kind = INIT_VALUE_SCALAR;
         value->mask = mask;
         value->scalar_expr = expr;
         
@@ -353,7 +353,7 @@ bool parse_var_addr_expr(const char* str, int* pos, ptx_initializer_value_t* val
     }
     
     // Set up the initializer value
-    value->kind = 1; // INIT_VALUE_ADDR_VAR
+    value->kind = INIT_VALUE_ADDR_VAR;
     value->mask = MASK_UNMASKED;
     value->addr_var.var_name = id_str;
     value->addr_var.offset = 0;
@@ -553,14 +553,14 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
                     printf("  Conversion successful\n");
                     // Create a constant for the float
                     ptx_constant_t constant;
-                    constant.type = PTX_CONST_FLOAT;
-                    constant.f64_val = value_f64;
+                    constant.type = PTX_CONST_FLOAT_SINGLE;
+                    constant.f32_val = (float)value_f64;
                     
                     // Create an expression for the constant
                     ptx_expr_t* expr = create_constant_expr(constant);
                     if (expr) {
                         // Set up the initializer value
-                        value->kind = 0; // INIT_VALUE_SCALAR
+                        value->kind = INIT_VALUE_SCALAR;
                         value->mask = MASK_UNMASKED;
                         value->scalar_expr = expr;
                         *pos = float_pos;  // Update position
@@ -590,7 +590,7 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
             *pos = saved_pos;  // Reset position
             if (parse_expr_precedence(str, pos, &expr, 0)) {
                 // Set up the initializer value
-                value->kind = 0; // INIT_VALUE_SCALAR
+                value->kind = INIT_VALUE_SCALAR;
                 value->mask = MASK_UNMASKED;
                 value->scalar_expr = expr;
                 printf("  Successfully parsed as constant expression\n");
@@ -617,7 +617,7 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
         ptx_expr_t* expr = NULL;
         if (parse_expr(str, &expr)) {
             // Set up the initializer value
-            value->kind = 0; // INIT_VALUE_SCALAR
+            value->kind = INIT_VALUE_SCALAR;
             value->mask = MASK_UNMASKED;
             value->scalar_expr = expr;
             // Update position to the end of string
@@ -684,7 +684,7 @@ bool parse_scalar_initializer(const char* str, int* pos, ptx_initializer_value_t
     ptx_expr_t* expr = NULL;
     if (parse_expr_precedence(str, pos, &expr, 0)) {
         // Set up the initializer value
-        value->kind = 0; // INIT_VALUE_SCALAR
+        value->kind = INIT_VALUE_SCALAR;
         value->mask = MASK_UNMASKED;
         value->scalar_expr = expr;
         printf("  Parsed as constant expression (fallback)\n");
