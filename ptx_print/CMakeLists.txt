@@ -9,6 +9,7 @@ set(SOURCES
     src/ptx_directive_print.c
     src/ptx_instruction_print.c
     src/ptx_label_print.c
+    src/ptx_constant_print.c
 )
 
 # List of header files
@@ -16,6 +17,7 @@ set(HEADERS
     include/ptx_print/ptx_directive_print.h
     include/ptx_print/ptx_instruction_print.h
     include/ptx_print/ptx_label_print.h
+    include/ptx_print/ptx_constant_print.h
 )
 
 # Create the library

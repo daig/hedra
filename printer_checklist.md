@@ -32,9 +32,13 @@ Each pretty printer should:
     - Implementation: `ptx_print/src/ptx_label_print.c`
     - Test: `test/ptx_print/test_label_print.c`
 
-- [ ] **print_constant**
+- [x] **print_constant**
   - **Purpose**: Prints a `ptx_constant_t` AST node as a constant value (e.g., integers, floats, predicates).
   - **Test**: Parse constant text → Print AST → Compare (modulo whitespace).
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/ptx_constant_print.h`
+    - Implementation: `ptx_print/src/ptx_constant_print.c`
+    - Test: `test/ptx_print/test_constant_print.c`
 
 - [ ] **print_identifier**
   - **Purpose**: Prints a `ptx_identifier_t` AST node as an identifier text (e.g., variable names, register names).
