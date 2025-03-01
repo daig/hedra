@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum {
+typedef enum ptx_state_space_t {
     PTX_STATE_REG,      // Registers, fast
     PTX_STATE_SREG,     // Special registers (read-only, pre-defined, platform-specific)
     PTX_STATE_CONST,    // Shared, read-only memory

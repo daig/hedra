@@ -25,6 +25,7 @@ set(AST_SOURCES
 
 # Header files (not required for compilation, but good to list for IDE integration)
 set(AST_HEADERS
+    include/prelude.h
     include/ptx_predefined_identifier.h
     include/ptx_identifier.h
     include/ptx_constant.h
@@ -62,4 +63,8 @@ install(TARGETS packed_float_test DESTINATION bin)
 # Test executable for the combined type system
 add_executable(type_test test/test_ptx_type.c)
 target_link_libraries(type_test ptx_ast)
-install(TARGETS type_test DESTINATION bin) 
+install(TARGETS type_test DESTINATION bin)
+
+# Test executable for the prelude utilities
+add_executable(prelude_test tests/test_prelude.c)
+install(TARGETS prelude_test DESTINATION bin) 
