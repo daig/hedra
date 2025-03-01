@@ -28,7 +28,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
     - `parse_predicate_constant` for predicate values (e.g., `0 (false)`, `1 (true)`).
   - **Note**: Partially implemented in `ptx_constant_parse.c`, as indicated by the `ptx_parse` directory.
 
-- [ ] **parse_identifier**
+- [ x ] **parse_identifier**
   - **Purpose**: Parses identifiers (e.g., variable names, register names) and constructs a `ptx_identifier_t` AST node.
   - **Details**: Identifiers can be user-defined (e.g., `my_var`) or predefined (e.g., `%clock`), as per `ptx_identifier.h` and `ptx_predefined_identifier.h`. The function must distinguish between these categories and validate syntax.
 

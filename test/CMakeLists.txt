@@ -65,4 +65,10 @@ install(TARGETS instruction_parse_test DESTINATION bin)
 add_executable(label_parse_test ptx_parse/test_label_parse.c)
 target_link_libraries(label_parse_test ptx_parse)
 target_include_directories(label_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
-install(TARGETS label_parse_test DESTINATION bin) 
+install(TARGETS label_parse_test DESTINATION bin)
+
+# New test for identifier parsing
+add_executable(identifier_parse_test ptx_parse/test_identifier_parse.c)
+target_link_libraries(identifier_parse_test ptx_parse)
+target_include_directories(identifier_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
+install(TARGETS identifier_parse_test DESTINATION bin) 
