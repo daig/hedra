@@ -72,13 +72,21 @@ Each pretty printer should:
     - Implementation: `ptx_print/src/ptx_expr_print.c`
     - Test: `test/ptx_print/test_expr_print.c`
 
-- [ ] **print_comment**
+- [x] **print_comment**
   - **Purpose**: Prints a `comment_t` AST node as a comment text (e.g., `// my comment`).
   - **Test**: Parse comment text → Print AST → Compare (modulo whitespace).
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/ptx_comment_print.h`
+    - Implementation: `ptx_print/src/ptx_comment_print.c`
+    - Test: `test/ptx_print/test_comment_print.c`
 
-- [ ] **print_c_directive**
+- [x] **print_c_directive**
   - **Purpose**: Prints a `c_directive_t` AST node as a C-style directive text (e.g., `#include`, `#define`).
   - **Test**: Parse C directive text → Print AST → Compare (modulo whitespace).
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/c_directive_print.h`
+    - Implementation: `ptx_print/src/c_directive_print.c`
+    - Test: `test/ptx_print/test_c_directive_print.c`
 
 ## Implementation Plan
 
