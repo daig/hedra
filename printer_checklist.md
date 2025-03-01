@@ -64,9 +64,13 @@ Each pretty printer should:
     - Implementation: `ptx_print/src/ptx_statement_print.c`
     - Test: `test/ptx_print/test_statement_print.c`
 
-- [ ] **print_expression**
+- [x] **print_expression**
   - **Purpose**: Prints a `ptx_expr_t` AST node as a constant expression text (e.g., `1 + 2`, `!0`).
   - **Test**: Parse expression text → Print AST → Compare (modulo whitespace).
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/ptx_expr_print.h`
+    - Implementation: `ptx_print/src/ptx_expr_print.c`
+    - Test: `test/ptx_print/test_expr_print.c`
 
 - [ ] **print_comment**
   - **Purpose**: Prints a `comment_t` AST node as a comment text (e.g., `// my comment`).
