@@ -205,4 +205,14 @@ target_include_directories(initializer_value_print_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_parse/include
     ${CMAKE_SOURCE_DIR}/ptx_print/include
 )
-install(TARGETS initializer_value_print_test DESTINATION bin) 
+install(TARGETS initializer_value_print_test DESTINATION bin)
+
+# Add after other parse tests
+add_executable(initializer_value_parse_test ptx_parse/test_initializer_value_parse.c)
+target_link_libraries(initializer_value_parse_test ptx_parse ptx_print)
+target_include_directories(initializer_value_parse_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS initializer_value_parse_test DESTINATION bin) 

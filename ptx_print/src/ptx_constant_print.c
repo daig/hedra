@@ -19,10 +19,10 @@ bool print_constant_to_file(FILE* file, ptx_constant_t constant) {
             chars_written = fprintf(file, "%lluU", (unsigned long long)constant.u64_val);
             break;
         case PTX_CONST_FLOAT:
-            chars_written = fprintf(file, "%g", constant.f64_val);
+            chars_written = fprintf(file, "%.6f", constant.f64_val);
             break;
         case PTX_CONST_FLOAT_SINGLE:
-            chars_written = fprintf(file, "%g", (double)constant.f32_val);
+            chars_written = fprintf(file, "%.6f", (double)constant.f32_val);
             break;
         case PTX_CONST_PRED:
             chars_written = fprintf(file, "%d", constant.pred_val);
@@ -50,10 +50,10 @@ int print_constant_to_buffer(char* buffer, size_t buffer_size, ptx_constant_t co
             chars_written = snprintf(buffer, buffer_size, "%lluU", (unsigned long long)constant.u64_val);
             break;
         case PTX_CONST_FLOAT:
-            chars_written = snprintf(buffer, buffer_size, "%g", constant.f64_val);
+            chars_written = snprintf(buffer, buffer_size, "%.6f", constant.f64_val);
             break;
         case PTX_CONST_FLOAT_SINGLE:
-            chars_written = snprintf(buffer, buffer_size, "%g", (double)constant.f32_val);
+            chars_written = snprintf(buffer, buffer_size, "%.6f", (double)constant.f32_val);
             break;
         case PTX_CONST_PRED:
             chars_written = snprintf(buffer, buffer_size, "%d", constant.pred_val);

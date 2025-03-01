@@ -14,14 +14,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SOURCES
     src/ptx_constant_parse.c
     src/ptx_constant_expr_parse.c
-    src/c_directive_parse.c
-    src/ptx_comment_parse.c
-    src/ptx_directive_parse.c
     src/ptx_identifier_parse.c
+    src/ptx_directive_parse.c
+    src/ptx_type_parse.c
     src/ptx_instruction_parse.c
     src/ptx_label_parse.c
     src/ptx_statement_parse.c
-    src/ptx_type_parse.c
+    src/ptx_comment_parse.c
+    src/c_directive_parse.c
+    src/ptx_initializer_value_parse.c
 )
 
 # Header files

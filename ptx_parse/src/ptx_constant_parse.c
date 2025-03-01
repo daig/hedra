@@ -100,41 +100,35 @@ double hex_to_double(const char* hex_str) {
 // Parse floating-point literal string and store in ptx_constant_t
 // Returns true if successful, false if invalid format
 bool parse_float_literal(const char* str, ptx_constant_t* constant) {
-    regex_t float_regex, float_hex_f32_regex, float_hex_f64_regex;
+    // Skip regex and directly use strtod for decimal floating-point format
     char* endptr;
-    bool success = false;
-
-    // Compile regex patterns
-    regcomp(&float_regex, FLOAT_DEC_PATTERN, REG_EXTENDED);
-    regcomp(&float_hex_f32_regex, FLOAT_HEX_F32_PATTERN, REG_EXTENDED);
-    regcomp(&float_hex_f64_regex, FLOAT_HEX_F64_PATTERN, REG_EXTENDED);
-
-    // Try matching each pattern
-    if (regexec(&float_regex, str, 0, NULL, 0) == 0) {
-        // Regular decimal floating-point format (e.g. "123.456", "1e-10")
-        constant->f64_val = strtod(str, &endptr);
+    constant->f64_val = strtod(str, &endptr);
+    
+    // If endptr points to the end of the string, the entire string was parsed successfully
+    if (*endptr == '\0') {
         constant->type = PTX_CONST_FLOAT;
-        success = true;
+        return true;
     }
-    else if (regexec(&float_hex_f32_regex, str, 0, NULL, 0) == 0) {
+    
+    // Check for hexadecimal float formats
+    if (strncmp(str, "0F", 2) == 0 || strncmp(str, "0f", 2) == 0) {
         // Hexadecimal 32-bit IEEE 754 format (e.g., "0F3f800000" for 1.0f)
-        constant->f32_val = hex_to_float(str);
-        constant->type = PTX_CONST_FLOAT_SINGLE;
-        success = true;
+        if (strlen(str) == 10) { // 0F + 8 hex digits
+            constant->f32_val = hex_to_float(str);
+            constant->type = PTX_CONST_FLOAT_SINGLE;
+            return true;
+        }
     }
-    else if (regexec(&float_hex_f64_regex, str, 0, NULL, 0) == 0) {
+    else if (strncmp(str, "0D", 2) == 0 || strncmp(str, "0d", 2) == 0) {
         // Hexadecimal 64-bit IEEE 754 format (e.g., "0D3ff0000000000000" for 1.0)
-        constant->f64_val = hex_to_double(str);
-        constant->type = PTX_CONST_FLOAT;
-        success = true;
+        if (strlen(str) == 18) { // 0D + 16 hex digits
+            constant->f64_val = hex_to_double(str);
+            constant->type = PTX_CONST_FLOAT;
+            return true;
+        }
     }
-
-    // Free regex
-    regfree(&float_regex);
-    regfree(&float_hex_f32_regex);
-    regfree(&float_hex_f64_regex);
-
-    return success;
+    
+    return false;
 }
 
 // Parse predicate literal string and store in ptx_constant_t
