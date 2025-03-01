@@ -16,9 +16,6 @@
 #include <ptx_ast/ptx_ast/ptx_constent_expr.h>
 #include <ptx_ast/ptx_ast/ptx_directive.h>
 #include <ptx_ast/ptx_ast/ptx_identifier.h>
-#include <ptx_ast/ptx_ast/ptx_initializer_examples.h>
-#include <ptx_ast/ptx_ast/ptx_initializer_helpers.h>
-#include <ptx_ast/ptx_ast/ptx_initializer_value_helpers.h>
 #include <ptx_ast/ptx_ast/ptx_instruction.h>
 #include <ptx_ast/ptx_ast/ptx_label.h>
 #include <ptx_ast/ptx_ast/ptx_predefined_identifier.h>

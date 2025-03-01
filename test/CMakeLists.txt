@@ -37,12 +37,6 @@ add_executable(initializer_array_test prelude/test_initializer_array.c)
 target_link_libraries(initializer_array_test prelude)
 install(TARGETS initializer_array_test DESTINATION bin)
 
-# Test for initializer helpers (uses both prelude and ptx_ast)
-add_executable(initializer_test prelude/test_initializer.c)
-target_link_libraries(initializer_test prelude ptx_ast)
-target_include_directories(initializer_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
-install(TARGETS initializer_test DESTINATION bin)
-
 # Tests for ptx_parse
 add_executable(constant_parse_test ptx_parse/test_constant_parse.c)
 target_link_libraries(constant_parse_test ptx_parse)

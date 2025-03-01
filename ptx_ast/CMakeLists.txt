@@ -23,10 +23,6 @@ set(SOURCES
     src/ptx_scalar_float_type.c
     src/ptx_statespace.c
     src/ptx_type_graphics.c
-    src/ptx_initializer_helpers.c
-    src/ptx_initializer_value_helpers.c
-    src/ptx_initializer_examples.c
-    src/ptx_initializer_demo.c
 )
 
 # Header files
@@ -38,11 +34,9 @@ set(HEADERS
     include/ptx_ast/ptx_constant.h
     include/ptx_ast/ptx_constant_expr.h
     include/ptx_ast/ptx_constent_expr.h
+    include/ptx_ast/ptx_declaration_lhs.h
     include/ptx_ast/ptx_directive.h
     include/ptx_ast/ptx_identifier.h
-    include/ptx_ast/ptx_initializer_examples.h
-    include/ptx_ast/ptx_initializer_helpers.h
-    include/ptx_ast/ptx_initializer_value_helpers.h
     include/ptx_ast/ptx_instruction.h
     include/ptx_ast/ptx_label.h
     include/ptx_ast/ptx_predefined_identifier.h
