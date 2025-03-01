@@ -40,9 +40,13 @@ Each pretty printer should:
     - Implementation: `ptx_print/src/ptx_constant_print.c`
     - Test: `test/ptx_print/test_constant_print.c`
 
-- [ ] **print_identifier**
+- [x] **print_identifier**
   - **Purpose**: Prints a `ptx_identifier_t` AST node as an identifier text (e.g., variable names, register names).
   - **Test**: Parse identifier text → Print AST → Compare (modulo whitespace).
+  - **Files**: 
+    - Header: `ptx_print/include/ptx_print/ptx_identifier_print.h`
+    - Implementation: `ptx_print/src/ptx_identifier_print.c`
+    - Test: `test/ptx_print/test_identifier_print.c`
 
 - [ ] **print_type**
   - **Purpose**: Prints a `ptx_type_t` AST node as a type specifier text (e.g., `.u32`, `.f64`, `.texref`).

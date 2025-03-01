@@ -135,4 +135,14 @@ target_include_directories(constant_print_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_parse/include
     ${CMAKE_SOURCE_DIR}/ptx_print/include
 )
-install(TARGETS constant_print_test DESTINATION bin) 
+install(TARGETS constant_print_test DESTINATION bin)
+
+# New test for identifier printing
+add_executable(identifier_print_test ptx_print/test_identifier_print.c)
+target_link_libraries(identifier_print_test ptx_print ptx_parse)
+target_include_directories(identifier_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS identifier_print_test DESTINATION bin) 
