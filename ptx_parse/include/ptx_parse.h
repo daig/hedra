@@ -13,6 +13,7 @@
 #include <ptx_parse/ptx_identifier_parse.h>
 #include <ptx_parse/ptx_instruction_parse.h>
 #include <ptx_parse/ptx_label_parse.h>
+#include <ptx_parse/ptx_statement_parse.h>
 #include <ptx_parse/ptx_type_parse.h>
 
 #endif /* PTX_PARSE_H */ 

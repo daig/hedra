@@ -36,7 +36,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses type specifiers (e.g., `.u32`, `.f64`, `.texref`) and constructs a `ptx_type_t` AST node.
   - **Details**: Types include fundamental types (e.g., `.s16`, `.f32`), graphics types (e.g., `.texref`), and alternate float formats (e.g., `.bf16`), as defined in `ptx_type.h`, `ptx_type_fundamental.h`, `ptx_type_graphics.h`, and `ptx_alternate_float_format.h`. This function must handle type keywords and their context.
 
-- [ ] **parse_statement**
+- [ x ] **parse_statement**
   - **Purpose**: Parses a complete PTX statement and constructs a `ptx_statement_t` AST node.
   - **Details**: A statement combines an optional label with either a directive or instruction (e.g., `my_label: add.s32 %r0, %r1, %r2`). This function integrates `parse_label`, `parse_directive`, and `parse_instruction` to build the AST node, as per `ptx_statement.h`.
 

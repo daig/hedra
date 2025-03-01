@@ -4,13 +4,13 @@
 #include <ptx_ast/ptx_label.h>
 
 
-enum ptx_statement_tag { DIRECTIVE, INSTRUCTION, };
+typedef enum ptx_statement_tag { DIRECTIVE, INSTRUCTION, } ptx_statement_tag;
 
-struct ptx_statement_t { 
+typedef struct ptx_statement_t { 
     ptx_statement_tag tag;
     ptx_label_t label; //optional
     union {
         ptx_directive_t directive;
         ptx_instruction_t instruction;
     };
-};
+} ptx_statement_t;

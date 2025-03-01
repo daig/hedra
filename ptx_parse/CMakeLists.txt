@@ -17,6 +17,7 @@ set(SOURCES
     src/ptx_identifier_parse.c
     src/ptx_instruction_parse.c
     src/ptx_label_parse.c
+    src/ptx_statement_parse.c
     src/ptx_type_parse.c
 )
 
@@ -28,6 +29,7 @@ set(HEADERS
     include/ptx_parse/ptx_identifier_parse.h
     include/ptx_parse/ptx_instruction_parse.h
     include/ptx_parse/ptx_label_parse.h
+    include/ptx_parse/ptx_statement_parse.h
     include/ptx_parse/ptx_type_parse.h
 )
 
