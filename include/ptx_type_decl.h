@@ -2,6 +2,7 @@
 
 #include "ptx_type.h"
 #include "ptx_statespace.h"
+#include "ptx_initializer_array.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -40,9 +41,6 @@ typedef struct ptx_shape {
         } array;
     };
 } ptx_shape_t;
-
-// Maximum number of initializer values for arrays
-#define PTX_MAX_INITIALIZER_VALUES 256
 
 /**
  * Enumeration of initializer kinds for PTX variables.
@@ -84,14 +82,11 @@ typedef enum ptx_mask_value {
     PTX_UNMASKED = 0xFFFFFFFFFFFFFFFF        // 0xFFFFFFFFFFFFFFFF - No mask
 } ptx_mask_value_t;
 
-// Forward declare the full initializer struct
-typedef struct ptx_initializer ptx_initializer_t;
-
 /**
  * Structure representing a value in a PTX initializer.
  * This can be a scalar value, variable address, or function address.
  */
-typedef struct {
+typedef struct ptx_initializer_value {
     ptx_initializer_kind_t kind;
     union {
         int64_t int_val;     // For integer scalar values
@@ -125,23 +120,13 @@ typedef struct {
  * PTX 3.1+ uses offsets in the global state space as default addressing for global variables,
  * rather than generic addresses. Use generic() operator explicitly for generic addresses.
  */
-struct ptx_initializer {
+typedef struct ptx_initializer {
     ptx_initializer_kind_t kind;
     union {
-        ptx_initializer_value_t scalar;  // For scalar initializers
-        struct {
-            size_t count;  // Number of values in the vector
-            ptx_initializer_value_t values[PTX_MAX_INITIALIZER_VALUES];
-        } vector;  // For vector initializers like {1,2,3,4}
-        struct {
-            size_t dims;  // Number of dimensions in the array
-            size_t counts[PTX_MAX_ARRAY_DIMS];  // Size of each dimension
-            ptx_initializer_value_t values[PTX_MAX_INITIALIZER_VALUES];
-        } array;  // For multi-dimensional array initializers like {{1,2},{3,4}}
+        ptx_initializer_value_t scalar;     // For scalar initializers
+        ptx_initializer_array_t* values;    // For vector/array initializers (stores ptx_initializer_value_t)
     } data;
-};
-
-
+} ptx_initializer_t;
 
 typedef struct ptx_type_decl {
     ptx_type_t type;
@@ -184,12 +169,12 @@ static const ptx_type_decl_t example_const_u32 = {
 static const ptx_type_decl_t example_global_v4_f32 = {
     .type = PTX_TYPE_F32,                  // .f32 type
     .statespace = PTX_STATE_GLOBAL,        // .global state space
-    .shape = {//vector shape .v4
+    .shape = {                             // vector shape .v4
         .kind = SHAPE_VECTOR,
-        .vector_size  = VECTOR_SIZE_V4
+        .vector_size = VECTOR_SIZE_V4
     },
     .name = "V",
-    .initializer = { .kind = INIT_NONE}
+    .initializer = { .kind = INIT_NONE }   // No initializer
 };
 
 /**
@@ -215,45 +200,18 @@ static const ptx_type_decl_t example_local_u16_array = {
  * Example of a PTX type declaration for a global 2D array of 32-bit signed integers with initializer.
  * 
  * This represents the PTX declaration: .global .s32 offset[][2] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
+ * 
+ * Note: In a real implementation, this would require dynamically allocating the ptx_initializer_array_t
+ * using ptx_initializer_array_create() and populating it with ptx_initializer_array_set().
+ * This static example is for illustration purposes only.
  */
-static const ptx_type_decl_t example_global_s32_array_with_initializer = {
-    .type = PTX_TYPE_S32,                  // .s32 type
-    .statespace = PTX_STATE_GLOBAL,        // .global state space
-    .shape = {
-        .kind = SHAPE_ARRAY,               // Array shape
-        .array = {
-            .size = ARRAY_SIZE_2D,         // 2D array
-            .sizes = {4, 2}                // 4x2 dimensions (inferred from initializer)
-        }
-    },
-    .name = "offset",                      // Variable name
-    .initializer = {
-        .kind = INIT_ARRAY,                // Array initializer
-        .data = {
-            .array = {
-                .dims = 2,                 // 2D array
-                .counts = {4, 2},          // 4x2 dimensions
-                .values = {
-                    // {-1, 0}
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = -1}},
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 0}},
-                    
-                    // {0, -1}
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 0}},
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = -1}},
-                    
-                    // {1, 0}
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 1}},
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 0}},
-                    
-                    // {0, 1}
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 0}},
-                    {.kind = INIT_SCALAR_INT, .value = {.int_val = 1}}
-                }
-            }
-        }
-    }
-};
+// This would be created dynamically in practice:
+// ptx_array_shape_t shape = ptx_array_shape_create(2, 4, 2);
+// ptx_initializer_array_t* array = ptx_initializer_array_create(shape, sizeof(ptx_initializer_value_t));
+// ptx_initializer_value_t value = {.kind = INIT_SCALAR_INT, .value = {.int_val = -1}};
+// size_t indices[2] = {0, 0};
+// ptx_initializer_array_set(array, indices, &value);
+// ...and so on for all elements
 
 /**
  * Example of a PTX type declaration for a global variable initialized with the address of another variable.
@@ -288,52 +246,35 @@ static const ptx_type_decl_t example_global_u32_var_address = {
  * Example of a PTX type declaration for a global vector of mixed values.
  * 
  * This represents the PTX declaration: .global .v4 .u32 mixed = {10, bar, add_func, 0};
+ * 
+ * Note: In a real implementation, this would require dynamically allocating the ptx_initializer_array_t
+ * using ptx_initializer_array_create() and populating it with ptx_initializer_array_set().
+ * This static example is for illustration purposes only.
  */
-static const ptx_type_decl_t example_global_v4_u32_mixed = {
-    .type = PTX_TYPE_U32,                  // .u32 type
-    .statespace = PTX_STATE_GLOBAL,        // .global state space
-    .shape = {
-        .kind = SHAPE_VECTOR,              // Vector shape
-        .vector_size = VECTOR_SIZE_V4      // v4 (4-element vector)
-    },
-    .name = "mixed",                       // Variable name
-    .initializer = {
-        .kind = INIT_VECTOR,               // Vector initializer
-        .data = {
-            .vector = {
-                .count = 4,                // 4 values in the vector
-                .values = {
-                    {  // Integer value 10
-                        .kind = INIT_SCALAR_INT,
-                        .value = {
-                            .int_val = 10
-                        }
-                    },
-                    {  // Address of variable "bar"
-                        .kind = INIT_VAR_ADDR,
-                        .value = {
-                            .var_addr = {
-                                .var_name = "bar",
-                                .offset = 0,
-                                .is_generic = false
-                            }
-                        }
-                    },
-                    {  // Address of function "add_func"
-                        .kind = INIT_FUNC_ADDR,
-                        .value = {
-                            .func_name = "add_func"
-                        }
-                    },
-                    {  // Integer value 0
-                        .kind = INIT_SCALAR_INT,
-                        .value = {
-                            .int_val = 0
-                        }
-                    }
-                }
-            }
-        }
-    }
-};
+// This would be created dynamically in practice:
+// ptx_array_shape_t shape = ptx_array_shape_create(1, 4);  // 1D array with 4 elements for vector
+// ptx_initializer_array_t* array = ptx_initializer_array_create(shape, sizeof(ptx_initializer_value_t));
+// 
+// // Set value for {10}
+// ptx_initializer_value_t value1 = {.kind = INIT_SCALAR_INT, .value = {.int_val = 10}};
+// size_t index1[1] = {0};
+// ptx_initializer_array_set(array, index1, &value1);
+// 
+// // Set value for {bar}
+// ptx_initializer_value_t value2 = {
+//     .kind = INIT_VAR_ADDR,
+//     .value = {.var_addr = {.var_name = "bar", .offset = 0, .is_generic = false}}
+// };
+// size_t index2[1] = {1};
+// ptx_initializer_array_set(array, index2, &value2);
+// 
+// // Set value for {add_func}
+// ptx_initializer_value_t value3 = {.kind = INIT_FUNC_ADDR, .value = {.func_name = "add_func"}};
+// size_t index3[1] = {2};
+// ptx_initializer_array_set(array, index3, &value3);
+// 
+// // Set value for {0}
+// ptx_initializer_value_t value4 = {.kind = INIT_SCALAR_INT, .value = {.int_val = 0}};
+// size_t index4[1] = {3};
+// ptx_initializer_array_set(array, index4, &value4);
 
