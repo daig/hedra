@@ -16,7 +16,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses PTX instructions (e.g., `add`, `mul`, `ld`) and constructs a `ptx_instruction_t` AST node.
   - **Details**: Instructions are the operational core of PTX, such as `add.s32 %r0, %r1, %r2`. This function needs to identify instruction opcodes from `ptx_instruction.h` and parse their operands, which may include registers, constants, or types.
 
-- [ ] **parse_label**
+- [ x ] **parse_label**
   - **Purpose**: Parses labels (e.g., `my_label:`) and constructs a `ptx_label_t` AST node.
   - **Details**: Labels are identifiers followed by a colon, used for control flow (e.g., branching). The function extracts the label name and ensures it conforms to PTX naming rules.
 

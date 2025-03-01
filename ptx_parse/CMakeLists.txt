@@ -15,6 +15,7 @@ set(SOURCES
     src/ptx_constant_parse.c
     src/ptx_directive_parse.c
     src/ptx_instruction_parse.c
+    src/ptx_label_parse.c
 )
 
 # Header files
@@ -23,6 +24,7 @@ set(HEADERS
     include/ptx_parse/ptx_constant_parse.h
     include/ptx_parse/ptx_directive_parse.h
     include/ptx_parse/ptx_instruction_parse.h
+    include/ptx_parse/ptx_label_parse.h
 )
 
 # Create library
