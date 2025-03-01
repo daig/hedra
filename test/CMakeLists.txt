@@ -49,6 +49,16 @@ target_link_libraries(constant_expr_parse_test ptx_parse)
 target_include_directories(constant_expr_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
 install(TARGETS constant_expr_parse_test DESTINATION bin)
 
+# Test for state space parsing and printing
+add_executable(statespace_test ptx_parse/test_ptx_statespace.c)
+target_link_libraries(statespace_test ptx_parse ptx_print)
+target_include_directories(statespace_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS statespace_test DESTINATION bin)
+
 # New test for directive parsing
 add_executable(directive_parse_test ptx_parse/test_directive_parse.c)
 target_link_libraries(directive_parse_test ptx_parse)

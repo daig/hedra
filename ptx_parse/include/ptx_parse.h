@@ -18,5 +18,6 @@
 #include <ptx_parse/ptx_label_parse.h>
 #include <ptx_parse/ptx_statement_parse.h>
 #include <ptx_parse/ptx_type_parse.h>
+#include <ptx_parse/ptx_statespace_parse.h>
 
 #endif /* PTX_PARSE_H */ 

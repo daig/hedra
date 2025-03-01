@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "ptx_constant_expr.h"
+#include "ptx_declaration_lhs.h"
 /**
  * Enumeration of supported mask values for the mask() operator in PTX initializers.
  * These values specify which byte to extract from the source value.
@@ -46,3 +47,13 @@ typedef struct ptx_initializer_value {
         ptx_address_operand_t addr_var;
     };
 } ptx_initializer_value_t;
+
+
+typedef struct ptx_decl_t {
+    ptx_declaration_type_t type;
+    bool has_initializer;
+    union {
+        ptx_initializer_array_t* array;
+        ptx_initializer_value_t* scalar;
+    };
+} ptx_decl_t;

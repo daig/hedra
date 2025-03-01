@@ -17,10 +17,12 @@ set(SOURCES
     src/ptx_comment_print.c
     src/c_directive_print.c
     src/ptx_initializer_value_print.c
+    src/ptx_statespace_print.c
 )
 
 # List of header files
 set(HEADERS
+    include/ptx_print.h
     include/ptx_print/ptx_directive_print.h
     include/ptx_print/ptx_instruction_print.h
     include/ptx_print/ptx_label_print.h
@@ -32,6 +34,7 @@ set(HEADERS
     include/ptx_print/ptx_comment_print.h
     include/ptx_print/c_directive_print.h
     include/ptx_print/ptx_initializer_value_print.h
+    include/ptx_print/ptx_statespace_print.h
 )
 
 # Create the library
