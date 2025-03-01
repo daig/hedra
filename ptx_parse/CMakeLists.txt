@@ -31,10 +31,8 @@ target_include_directories(ptx_parse
         $<INSTALL_INTERFACE:include>
 )
 
-# Set dependencies
-find_package(prelude REQUIRED)
-find_package(ptx_ast REQUIRED)
-target_link_libraries(ptx_parse PRIVATE prelude::prelude ptx_ast::ptx_ast)
+# Set dependencies - use direct target references instead of find_package
+target_link_libraries(ptx_parse PRIVATE prelude ptx_ast)
 
 # Install targets
 install(TARGETS ptx_parse 

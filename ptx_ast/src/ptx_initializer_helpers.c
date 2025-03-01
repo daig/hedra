@@ -7,8 +7,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <prelude/ptx_initializer_helpers.h>
-#include <prelude/ptx_initializer_value_helpers.h>
+#include <ptx_ast/ptx_initializer_helpers.h>
+#include <ptx_ast/ptx_initializer_value_helpers.h>
 #include <string.h>
 
 ptx_initializer_t ptx_initializer_create_scalar(ptx_initializer_kind_t kind, const ptx_initializer_value_t* value) {

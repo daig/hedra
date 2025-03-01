@@ -1,4 +1,4 @@
-#include <prelude/>prelude.h>
+#include <prelude/prelude.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>

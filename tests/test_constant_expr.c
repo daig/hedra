@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <ptx_ast/>ptx_constant_expr.h>
-#include <ptx_ast/>ptx_constant.h>
+#include <ptx_ast/ptx_constant_expr.h>
+#include <ptx_ast/ptx_constant.h>
 
 // Utility function to create signed integer constant
 ptx_expr_t* create_int_constant(int64_t value) {

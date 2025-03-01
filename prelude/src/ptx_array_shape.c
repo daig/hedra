@@ -3,7 +3,7 @@
  * @brief Implementation of array shape functions for multi-dimensional arrays
  */
 
-#include <prelude/>ptx_array_shape.h>
+#include <prelude/ptx_array_shape.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <ptx_ast/>ptx_type.h>
-#include <ptx_ast/>ptx_type_graphics.h>
+#include <ptx_ast/ptx_type.h>
+#include <ptx_ast/ptx_type_graphics.h>
 
 // Helper function to print the result of a boolean test
 void print_test_result(const char* test_name, bool result) {

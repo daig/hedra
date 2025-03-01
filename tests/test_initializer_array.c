@@ -3,7 +3,7 @@
  * @brief Test for the dynamic multi-dimensional array implementation
  */
 
-#include <prelude/>ptx_initializer_array.h>
+#include <prelude/ptx_initializer_array.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

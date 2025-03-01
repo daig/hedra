@@ -3,9 +3,9 @@
  * @brief Demonstration program for ptx_initializer helper functions
  */
 
-#include <prelude/ptx_initializer_examples.h>
-#include <prelude/ptx_initializer_helpers.h>
-#include <prelude/ptx_initializer_value_helpers.h>
+#include <ptx_ast/ptx_initializer_examples.h>
+#include <ptx_ast/ptx_initializer_helpers.h>
+#include <ptx_ast/ptx_initializer_value_helpers.h>
 #include <stdio.h>
 #include <stdlib.h>
 

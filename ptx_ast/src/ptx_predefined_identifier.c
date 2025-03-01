@@ -1,4 +1,4 @@
-#include <ptx_ast/>ptx_predefined_identifier.h>
+#include <ptx_ast/ptx_predefined_identifier.h>
 #include <string.h>
 
 predefined_identifier_t get_predefined_identifier(const char* str) {

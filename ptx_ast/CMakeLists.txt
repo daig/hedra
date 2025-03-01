@@ -23,6 +23,10 @@ set(SOURCES
     src/ptx_scalar_float_type.c
     src/ptx_statespace.c
     src/ptx_type_graphics.c
+    src/ptx_initializer_helpers.c
+    src/ptx_initializer_value_helpers.c
+    src/ptx_initializer_examples.c
+    src/ptx_initializer_demo.c
 )
 
 # Header files
@@ -63,8 +67,8 @@ target_include_directories(ptx_ast
 )
 
 # Set dependencies
-find_package(prelude REQUIRED)
-target_link_libraries(ptx_ast PRIVATE prelude::prelude)
+# find_package(prelude REQUIRED)
+target_link_libraries(ptx_ast PRIVATE prelude)
 
 # Install targets
 install(TARGETS ptx_ast 

@@ -1,5 +1,5 @@
-#include <ptx_ast/>ptx_type_fundamental.h>
-#include <ptx_ast/>ptx_instruction.h>
+#include <ptx_ast/ptx_type_fundamental.h>
+#include <ptx_ast/ptx_instruction.h>
 #include <stdbool.h>
 
 /**

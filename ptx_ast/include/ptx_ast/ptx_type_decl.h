@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ptx_ast/>ptx_type.h>
-#include <ptx_ast/>ptx_statespace.h>
-#include <prelude/>ptx_initializer_array.h>
+#include <ptx_ast/ptx_type.h>
+#include <ptx_ast/ptx_statespace.h>
+#include <prelude/ptx_initializer_array.h>
 #include <stdint.h>
 #include <stddef.h>
 

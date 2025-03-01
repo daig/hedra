@@ -1,5 +1,5 @@
 #pragma once
-#include <ptx_ast/>ptx_constant.h>
+#include <ptx_ast/ptx_constant.h>
 
 typedef enum {
     // Primary operator

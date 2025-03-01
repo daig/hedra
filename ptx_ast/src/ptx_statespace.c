@@ -1,4 +1,4 @@
-#include <ptx_ast/>ptx_statespace.h>
+#include <ptx_ast/ptx_statespace.h>
 
 // Check if a state space is addressable
 bool is_addressable(ptx_state_space_t space) {

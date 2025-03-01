@@ -6,7 +6,7 @@
 #pragma once
 
 #include <stddef.h>
-#include <prelude/>ptx_array_shape.h>
+#include <prelude/ptx_array_shape.h>
 
 /**
  * @typedef ptx_initializer_array_t

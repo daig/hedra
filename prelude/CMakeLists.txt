@@ -14,10 +14,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SOURCES
     src/ptx_array_shape.c
     src/ptx_initializer_array.c
-    src/ptx_initializer_helpers.c
-    src/ptx_initializer_value_helpers.c
-    src/ptx_initializer_demo.c
-    src/ptx_initializer_examples.c
 )
 
 # Header files
