@@ -56,7 +56,7 @@ Below is the checklist, organized as a series of tasks with descriptions of each
   - **Purpose**: Parses comments (e.g., `// my comment`) and constructs a `comment_t` AST node.
   - **Details**: Comments are informational and typically ignored during execution but preserved in the AST for documentation or analysis, as per `comment.h`. The function extracts the comment text.
 
-- [ ] **parse_c_directive**
+- [ x ] **parse_c_directive**
   - **Purpose**: Parses C-style directives (e.g., `#include`, `#define`) and constructs a `c_directive_t` AST node.
   - **Details**: If PTX code includes C preprocessor directives (hinted by `c_directive.h`), this function identifies and parses them. This is optional, depending on project requirements.
 

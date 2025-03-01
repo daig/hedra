@@ -95,4 +95,10 @@ install(TARGETS statement_parse_test DESTINATION bin)
 add_executable(comment_parse_test ptx_parse/test_comment_parse.c)
 target_link_libraries(comment_parse_test ptx_parse)
 target_include_directories(comment_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
-install(TARGETS comment_parse_test DESTINATION bin) 
+install(TARGETS comment_parse_test DESTINATION bin)
+
+# New test for C directive parsing
+add_executable(c_directive_parse_test ptx_parse/test_c_directive_parse.c)
+target_link_libraries(c_directive_parse_test ptx_parse)
+target_include_directories(c_directive_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
+install(TARGETS c_directive_parse_test DESTINATION bin) 
