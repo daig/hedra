@@ -1,4 +1,4 @@
-#include "ptx_type_graphics.h"
+#include "ast/ptx_type_graphics.h"
 
 bool ptx_is_graphics_type(ptx_type_t type) {
     return (type == PTX_TYPE_TEXREF || 

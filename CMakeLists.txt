@@ -30,30 +30,33 @@ set(PRELUDE_HEADERS
 
 # AST library source files
 set(AST_SOURCES
-    src/ptx_predefined_identifier.c
-    src/ptx_identifier.c
-    src/ptx_constant.c
-    src/ptx_constant_expr.c
-    src/ptx_type_fundamental.c
-    src/ptx_alternate_float_format.c
-    src/ptx_type_packed_float.c
-    src/ptx_type.c
-    src/ptx_scalar_float_type.c
+    src/ast/ptx_predefined_identifier.c
+    src/ast/ptx_identifier.c
+    src/ast/ptx_constant.c
+    src/ast/ptx_constant_expr.c
+    src/ast/ptx_type_fundamental.c
+    src/ast/ptx_alternate_float_format.c
+    src/ast/ptx_type_packed_float.c
+    src/ast/ptx_type.c
+    src/ast/ptx_scalar_float_type.c
+    src/ast/ptx_statespace.c
+    src/ast/ptx_type_graphics.c
 )
 
 # AST library headers
 set(AST_HEADERS
-    include/ptx_predefined_identifier.h
-    include/ptx_identifier.h
-    include/ptx_constant.h
-    include/ptx_constant_expr.h
-    include/ptx_instruction.h
-    include/ptx_type_fundamental.h
-    include/ptx_alternate_float_format.h
-    include/ptx_type_packed_float.h
-    include/ptx_type.h
-    include/ptx_scalar_float_type.h
-    include/ptx_statespace.h
+    include/ast/ptx_predefined_identifier.h
+    include/ast/ptx_identifier.h
+    include/ast/ptx_constant.h
+    include/ast/ptx_constant_expr.h
+    include/ast/ptx_instruction.h
+    include/ast/ptx_type_fundamental.h
+    include/ast/ptx_alternate_float_format.h
+    include/ast/ptx_type_packed_float.h
+    include/ast/ptx_type.h
+    include/ast/ptx_scalar_float_type.h
+    include/ast/ptx_statespace.h
+    include/ast/ptx_type_graphics.h
 )
 
 # Parse library source files
@@ -75,8 +78,9 @@ add_library(ptx_ast STATIC ${AST_SOURCES})
 # Create parse library
 add_library(ptx_parse STATIC ${PARSE_SOURCES})
 
-# Link parse library with ptx_ast
-target_link_libraries(ptx_parse PRIVATE ptx_ast)
+# Setup dependencies between libraries
+target_link_libraries(ptx_ast PRIVATE prelude)
+target_link_libraries(ptx_parse PRIVATE ptx_ast prelude)
 
 # Install targets
 install(TARGETS prelude ptx_ast ptx_parse DESTINATION lib)

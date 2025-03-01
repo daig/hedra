@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ptx_type.h"
+#include "ast/ptx_type.h"
 #include <stdbool.h>
 
 /**

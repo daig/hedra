@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "ptx_type.h"
+#include "ast/ptx_type.h"
 
 // Forward declaration of the graphics type enum
 typedef enum ptx_graphics_type ptx_graphics_type_t;

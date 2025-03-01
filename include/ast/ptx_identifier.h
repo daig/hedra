@@ -1,5 +1,5 @@
 #pragma once
-#include "ptx_predefined_identifier.h"
+#include "ast/ptx_predefined_identifier.h"
 #include <ctype.h>
 #include <stdbool.h>
 

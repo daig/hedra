@@ -1,5 +1,5 @@
-#include "ptx_alternate_float_format.h"
-#include "ptx_type_fundamental.h"
+#include "ast/ptx_alternate_float_format.h"
+#include "ast/ptx_type_fundamental.h"
 
 /**
  * Helper function to convert from general ptx_type_t to ptx_alternate_float_format_t

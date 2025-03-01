@@ -1,4 +1,4 @@
-#include "ptx_identifier.h"
+#include "ast/ptx_identifier.h"
 #include <ctype.h>
 
 bool is_followsym(char c) {

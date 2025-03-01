@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ptx_constant.h"
+#include "../ast/ptx_constant.h"
 #include <stdbool.h>
 
 // Parse integer literal string and store in ptx_constant_t

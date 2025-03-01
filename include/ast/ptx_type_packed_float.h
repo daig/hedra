@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include "ptx_type.h"
-#include "ptx_scalar_float_type.h"
+#include "ast/ptx_type.h"
+#include "ast/ptx_scalar_float_type.h"
 
 /**
  * Enumeration of packed floating point types in PTX.

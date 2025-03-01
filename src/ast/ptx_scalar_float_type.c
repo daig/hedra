@@ -1,5 +1,5 @@
-#include "ptx_scalar_float_type.h"
-#include "ptx_type.h"
+#include "ast/ptx_scalar_float_type.h"
+#include "ast/ptx_type.h"
 
 /**
  * Helper function to convert from general ptx_type_t to ptx_scalar_float_type_t

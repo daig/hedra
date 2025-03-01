@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ptx_type.h"
-#include "ptx_statespace.h"
+#include "ast/ptx_type.h"
+#include "ast/ptx_statespace.h"
 #include "ptx_initializer_array.h"
 #include <stdint.h>
 #include <stddef.h>

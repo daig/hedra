@@ -1,5 +1,5 @@
-#include "ptx_type_packed_float.h"
-#include "ptx_scalar_float_type.h"
+#include "ast/ptx_type_packed_float.h"
+#include "ast/ptx_scalar_float_type.h"
 #include <stdlib.h>
 
 /**

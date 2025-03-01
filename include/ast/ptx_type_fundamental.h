@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include "ptx_instruction.h"
-#include "ptx_type.h"
+#include "ast/ptx_instruction.h"
+#include "ast/ptx_type.h"
 
 /**
  * Enum for fundamental types that references the combined enum.

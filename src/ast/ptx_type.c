@@ -1,9 +1,9 @@
-#include "ptx_type.h"
-#include "ptx_type_fundamental.h"
-#include "ptx_alternate_float_format.h"
-#include "ptx_type_packed_float.h"
-#include "ptx_scalar_float_type.h"
-#include "ptx_type_graphics.h"
+#include "ast/ptx_type.h"
+#include "ast/ptx_type_fundamental.h"
+#include "ast/ptx_alternate_float_format.h"
+#include "ast/ptx_type_packed_float.h"
+#include "ast/ptx_scalar_float_type.h"
+#include "ast/ptx_type_graphics.h"
 
 bool ptx_is_fundamental_type(ptx_type_t type) {
     // Check if the type is within the range of fundamental types
