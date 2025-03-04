@@ -56,6 +56,15 @@ bool parse_attribute(const char* str, ptx_attribute_t* attr, const char** str_en
     // Skip whitespace after directive
     str = skip_whitespace(str);
     
+    // Check for opening parenthesis
+    if (*str != '(') {
+        return false;
+    }
+    str++;
+    
+    // Skip whitespace after opening parenthesis
+    str = skip_whitespace(str);
+    
     // Parse attribute tag
     ptx_attribute_tag_t tag;
     const char* tag_end = NULL;
@@ -128,6 +137,13 @@ bool parse_attribute(const char* str, ptx_attribute_t* attr, const char** str_en
         }
         str++;
     }
+    
+    // Check for closing parenthesis for the main attribute
+    str = skip_whitespace(str);
+    if (*str != ')') {
+        return false;
+    }
+    str++;
     
     *str_end = str;
     return true;

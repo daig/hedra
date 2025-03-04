@@ -13,7 +13,7 @@
 void test_managed_attribute() {
     printf("Testing managed attribute parsing...\n");
     
-    const char* test_str = ".attribute .managed";
+    const char* test_str = ".attribute(.managed)";
     ptx_attribute_t attr = {0};
     const char* end = NULL;
     
@@ -34,9 +34,9 @@ void test_managed_attribute() {
     int print_result = print_attribute_to_buffer(buffer, BUFFER_SIZE, &attr);
     assert(print_result > 0);
     
-    printf("Expected: \".attribute .managed\"\n");
+    printf("Expected: \".attribute(.managed)\"\n");
     printf("Got:      \"%s\"\n", buffer);
-    assert(strcmp(buffer, ".attribute .managed") == 0);
+    assert(strcmp(buffer, ".attribute(.managed)") == 0);
 }
 
 /**
@@ -45,7 +45,7 @@ void test_managed_attribute() {
 void test_unified_attribute() {
     printf("Testing unified attribute parsing...\n");
     
-    const char* test_str = ".attribute .unified(19, 95)";
+    const char* test_str = ".attribute(.unified(19, 95))";
     ptx_attribute_t attr = {0};
     const char* end = NULL;
     
@@ -68,9 +68,9 @@ void test_unified_attribute() {
     int print_result = print_attribute_to_buffer(buffer, BUFFER_SIZE, &attr);
     assert(print_result > 0);
     
-    printf("Expected: \".attribute .unified(19, 95)\"\n");
+    printf("Expected: \".attribute(.unified(19, 95))\"\n");
     printf("Got:      \"%s\"\n", buffer);
-    assert(strcmp(buffer, ".attribute .unified(19, 95)") == 0);
+    assert(strcmp(buffer, ".attribute(.unified(19, 95))") == 0);
 }
 
 /**
@@ -79,7 +79,7 @@ void test_unified_attribute() {
 void test_unified_attribute_hex() {
     printf("Testing unified attribute parsing with hex values...\n");
     
-    const char* test_str = ".attribute .unified(0xAB, 0xCD)";
+    const char* test_str = ".attribute(.unified(0xAB, 0xCD))";
     ptx_attribute_t attr = {0};
     const char* end = NULL;
     

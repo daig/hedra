@@ -28,7 +28,7 @@ int print_attribute_to_buffer(char* buffer, size_t buffer_size, const ptx_attrib
         return -1;
     }
     
-    int printed = snprintf(buffer, buffer_size, ".attribute ");
+    int printed = snprintf(buffer, buffer_size, ".attribute(");
     if (printed < 0 || (size_t)printed >= buffer_size) {
         return -1;
     }
@@ -48,6 +48,15 @@ int print_attribute_to_buffer(char* buffer, size_t buffer_size, const ptx_attrib
             return -1;
         }
         printed += params_printed;
+    }
+    
+    // Add closing parenthesis
+    if (buffer_size - printed > 1) {
+        buffer[printed] = ')';
+        buffer[printed + 1] = '\0';
+        printed++;
+    } else {
+        return -1;  // Not enough space
     }
     
     return printed;

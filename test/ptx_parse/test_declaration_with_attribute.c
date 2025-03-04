@@ -23,7 +23,7 @@ static void cleanup_decl_lhs(ptx_declaration_type_t *lhs) {
 void test_managed_attribute_declaration() {
     printf("Testing declaration with managed attribute...\n");
     
-    const char* test_str = ".attribute .managed .global .u32 g";
+    const char* test_str = ".global .attribute(.managed) .u32 g";
     ptx_declaration_type_t lhs = {0};
     
     printf("About to parse: \"%s\"\n", test_str);
@@ -43,7 +43,7 @@ void test_managed_attribute_declaration() {
         printf("Printed: \"%s\"\n", buffer);
         
         assert(print_result > 0);
-        assert(strstr(buffer, ".attribute .managed") != NULL);
+        assert(strstr(buffer, ".attribute(.managed)") != NULL);
         assert(strstr(buffer, ".global") != NULL);
         assert(strstr(buffer, ".u32") != NULL);
         assert(strstr(buffer, "g") != NULL);
@@ -62,7 +62,7 @@ void test_managed_attribute_declaration() {
 void test_unified_attribute_declaration() {
     printf("Testing declaration with unified attribute...\n");
     
-    const char* test_str = ".attribute .unified(0xAB, 0xCD) .global .f32 f";
+    const char* test_str = ".global .attribute(.unified(0xAB, 0xCD)) .f32 f";
     ptx_declaration_type_t lhs = {0};
     
     printf("About to parse: \"%s\"\n", test_str);
@@ -84,7 +84,7 @@ void test_unified_attribute_declaration() {
         printf("Printed: \"%s\"\n", buffer);
         
         assert(print_result > 0);
-        assert(strstr(buffer, ".attribute .unified") != NULL);
+        assert(strstr(buffer, ".attribute(.unified") != NULL);
         assert(strstr(buffer, ".global") != NULL);
         assert(strstr(buffer, ".f32") != NULL);
         assert(strstr(buffer, "f") != NULL);

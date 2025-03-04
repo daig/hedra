@@ -51,20 +51,20 @@ bool print_declaration_lhs_to_file(FILE* file, const ptx_declaration_type_t* lhs
         return false;
     }
 
+    // Print state space
+    if (!print_state_space_to_file(file, lhs->statespace)) {
+        return false;
+    }
+
     // Print attribute if present
     if (lhs->has_attribute) {
         char attr_buffer[128]; // Buffer for attribute
         if (print_attribute_to_buffer(attr_buffer, sizeof(attr_buffer), &lhs->attribute) < 0) {
             return false;
         }
-        if (fprintf(file, "%s ", attr_buffer) < 0) {
+        if (fprintf(file, " %s", attr_buffer) < 0) {
             return false;
         }
-    }
-
-    // Print state space
-    if (!print_state_space_to_file(file, lhs->statespace)) {
-        return false;
     }
 
     // Print alignment (if specified)

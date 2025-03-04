@@ -260,6 +260,22 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
     // Make a copy of the original string for parsing
     const char* current = str;
     
+    // Parse state space and get the updated position
+    const char* state_space_end = NULL;
+    if (!internal_parse_state_space(current, &lhs->statespace, &state_space_end)) {
+        return false;
+    }
+    
+    // Skip past the state space part
+    current = state_space_end;
+    
+    // Skip whitespace after state space
+    current = skip_whitespace(current);
+    
+    if (!*current) {
+        return false; // Unexpected end of string
+    }
+    
     // Check for attribute directive
     if (strncmp(current, ".attribute", 10) == 0) {
         const char* attr_end = NULL;
@@ -278,22 +294,6 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
         if (!*current) {
             return false; // Unexpected end of string
         }
-    }
-    
-    // Parse state space and get the updated position
-    const char* state_space_end = NULL;
-    if (!internal_parse_state_space(current, &lhs->statespace, &state_space_end)) {
-        return false;
-    }
-    
-    // Skip past the state space part
-    current = state_space_end;
-    
-    // Skip whitespace after state space
-    current = skip_whitespace(current);
-    
-    if (!*current) {
-        return false; // Unexpected end of string
     }
     
     // Check for alignment specifier (.align)
