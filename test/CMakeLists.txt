@@ -290,4 +290,21 @@ target_include_directories(function_parse_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_print/include
     ${CMAKE_SOURCE_DIR}/prelude/include
 )
-install(TARGETS function_parse_test DESTINATION bin) 
+install(TARGETS function_parse_test DESTINATION bin)
+
+# PTX Print tests
+add_subdirectory(ptx_print)
+
+# Add the function_print_test 
+add_test(NAME function_print_test COMMAND test_function_print)
+
+# Add the new test for function printing
+add_executable(function_print_test ptx_print/test_function_print.c)
+target_link_libraries(function_print_test ptx_print ptx_parse ptx_ast prelude)
+target_include_directories(function_print_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS function_print_test DESTINATION bin) 

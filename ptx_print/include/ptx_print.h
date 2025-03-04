@@ -22,5 +22,7 @@
 #include <ptx_print/ptx_initializer_array_print.h>
 #include <ptx_print/ptx_statespace_print.h>
 #include <ptx_print/ptx_declaration_lhs_print.h>
+#include <ptx_print/ptx_attribute_print.h>
+#include <ptx_print/ptx_function_print.h>
 
 #endif /* PTX_PRINT_H */ 

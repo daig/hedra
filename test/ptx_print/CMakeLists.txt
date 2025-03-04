@@ -1,0 +1,2 @@
+add_executable(test_function_print test_function_print.c)
+target_link_libraries(test_function_print ptx_parse ptx_print ptx_ast prelude) 

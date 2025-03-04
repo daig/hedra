@@ -40,6 +40,7 @@ typedef struct ptx_parameter {
     ptx_type_t type;                 // Parameter type
     char* name;                      // Parameter name
     ptx_param_attribute_t attribute; // Parameter attribute (e.g., .ptr)
+    ptx_state_space_t pointer_state_space; // For .ptr parameters, the target state space
     bool has_alignment;              // Whether alignment is specified
     unsigned int alignment;          // Alignment value in bytes (if specified)
     bool has_array_dims;             // Whether this parameter has array dimensions

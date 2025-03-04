@@ -4,7 +4,7 @@ This updated checklist outlines the components needed to successfully parse comp
 
 ## Core Function Components
 
-- [ ] **parse_function_declaration**
+- [ x ] **parse_function_declaration**
   - **Purpose**: Parse the complete function declaration including attributes, directives, name, and return type signature.
   - **Details**: Handle patterns like `.visible .entry computeKernel(float*, int, int)(` which includes:
     - Function attributes (`.visible`)
@@ -13,7 +13,7 @@ This updated checklist outlines the components needed to successfully parse comp
     - Return type signature (`float*, int, int`)
   - **Implementation**: Create `ptx_function_parse.h/c` with functions to parse the declaration header.
 
-- [ ] **parse_parameter_list**
+- [ x ] **parse_parameter_list**
   - **Purpose**: Parse function parameter declarations inside the second parenthesis set.
   - **Details**: Handle parameters like `.param .u64 grid_param`, which specify state space, type, and name.
   - **Implementation**: Extend current declaration parser or create dedicated parameter parser that reuses existing type and state space parsers.
@@ -42,12 +42,12 @@ This updated checklist outlines the components needed to successfully parse comp
 
 ## AST Structure Enhancements
 
-- [ ] **ptx_function_t**
+- [ x ] **ptx_function_t**
   - **Purpose**: Define an AST structure to represent complete PTX functions.
   - **Details**: Include fields for attributes, directives, name, return type, parameters, and body statements.
   - **Implementation**: Create this structure in a new `ptx_ast/include/ptx_ast/ptx_function.h` file.
 
-- [ ] **ptx_parameter_t**
+- [ x ] **ptx_parameter_t**
   - **Purpose**: Define an AST structure for function parameters.
   - **Details**: Include fields for state space, type, and name, possibly reusing existing declaration structures.
   - **Implementation**: Add this to the function AST structure or create a separate header.

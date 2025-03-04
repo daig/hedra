@@ -88,6 +88,7 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
     param->next = NULL;
     param->name = NULL;
     param->attribute = PTX_PARAM_NONE;
+    param->pointer_state_space = PTX_STATE_GLOBAL; // Default to global if not specified
     param->has_alignment = false;
     param->alignment = 4; // Default alignment is 4 bytes
     param->has_array_dims = false;
@@ -169,8 +170,8 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
             // Parse the state space
             ptx_state_space_t ptr_state_space;
             if (parse_state_space(space_str, &ptr_state_space)) {
-                // For .ptr, we're keeping the PARAM state space but storing which space it points to
-                // in the future we might want to add this to the parameter structure
+                // Store the pointer's target state space in our new field
+                param->pointer_state_space = ptr_state_space;
                 pos += space_len;
                 pos += skip_whitespace_and_comments(input + pos);
             } else {
