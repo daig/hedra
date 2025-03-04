@@ -20,5 +20,10 @@
 #include <ptx_parse/ptx_type_parse.h>
 #include <ptx_parse/ptx_statespace_parse.h>
 #include <ptx_parse/ptx_declaration_lhs_parse.h>
+#include <ptx_parse/ptx_initializer_value_parse.h>
+#include <ptx_parse/ptx_initializer_array_parse.h>
+#include <ptx_parse/ptx_type_decl_parse.h>
+#include <ptx_parse/ptx_attribute_parse.h>
+#include <ptx_parse/ptx_function_parse.h>
 
 #endif /* PTX_PARSE_H */ 

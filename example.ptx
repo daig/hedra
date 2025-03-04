@@ -1,0 +1,143 @@
+// Compilation provided by Compiler Explorer at https://godbolt.org/
+// Matrix multiplication kernel implementation for CUDA
+// Computes C = A * B where A, B, and C are square matrices of size matrix_width x matrix_width
+// Each thread computes one element of the result matrix
+.visible .entry matmul(
+        .param .u64 matrix_a,       // Input matrix A (row-major)
+        .param .u64 matrix_b,       // Input matrix B (row-major)
+        .param .u64 result_matrix,  // Output matrix C (row-major)
+        .param .u32 matrix_width    // Width of the square matrices
+)
+{
+        // Load parameters into registers
+        ld.param.u64    %addr_a, [matrix_a];
+        ld.param.u64    %addr_b, [matrix_b];
+        ld.param.u64    %addr_result, [result_matrix];
+        ld.param.u32    %width, [matrix_width];
+        
+        // Convert from parameter memory space to global memory space
+        cvta.to.global.u64      %addr_b_global, %addr_b;    // Convert matrix_b address to global memory
+        cvta.to.global.u64      %addr_a_global, %addr_a;    // Convert matrix_a address to global memory
+        
+        // Calculate the thread's global row index using blockIdx.y, blockDim.y, and threadIdx.y
+        mov.u32         %block_dim_y, %ntid.y;          // Block dimension y (threads per block in y-dimension)
+        mov.u32         %block_idx_y, %ctaid.y;         // Block index y
+        mov.u32         %thread_idx_y, %tid.y;           // Thread index y within block
+        mad.lo.s32      %row, %block_idx_y, %block_dim_y, %thread_idx_y;  // row = blockIdx.y * blockDim.y + threadIdx.y
+        
+        // Calculate the thread's global column index using blockIdx.x, blockDim.x, and threadIdx.x
+        mov.u32         %block_dim_x, %ntid.x;          // Block dimension x (threads per block in x-dimension)
+        mov.u32         %block_idx_x, %ctaid.x;         // Block index x
+        mov.u32         %thread_idx_x, %tid.x;           // Thread index x within block
+        mad.lo.s32      %col, %block_idx_x, %block_dim_x, %thread_idx_x;  // col = blockIdx.x * blockDim.x + threadIdx.x
+        
+        // Check if thread indices are within matrix bounds
+        setp.ge.s32     %is_row_out_of_bounds, %row, %width;         // Is row >= matrix_width?
+        setp.ge.s32     %is_col_out_of_bounds, %col, %width;         // Is col >= matrix_width?
+        or.pred         %is_out_of_bounds, %is_row_out_of_bounds, %is_col_out_of_bounds;          // Combine predicates
+        @%is_out_of_bounds bra        $EXIT;                  // If out of bounds, skip computation and return
+
+        // Calculate starting index in matrix A for this thread's row
+        setp.lt.s32     %is_empty_matrix, %width, 1;           // Check if matrix_width < 1
+        mul.lo.s32      %row_offset, %row, %width;         // row_offset = row * matrix_width
+        mov.f32         %dot_product, 0f00000000;       // Initialize sum to 0
+        @%is_empty_matrix bra        $STORE_RESULT;          // If matrix_width < 1, skip dot product calculation
+        
+        // Setup for dot product calculation with loop unrolling optimization
+        add.s32         %width_minus_1, %width, -1;         // matrix_width - 1
+        and.b32         %remainder_count, %width, 3;          // matrix_width % 4 (for handling remainder)
+        setp.lt.u32     %is_small_matrix, %width_minus_1, 3;           // Check if matrix_width < 4
+        mov.f32         %dot_product, 0f00000000;       // Initialize dot product sum to 0
+        mov.u32         %k_index, 0;                // Initialize index counter to 0
+        @%is_small_matrix bra        $HANDLE_REMAINDER;      // If matrix_width < 4, skip unrolled loop
+        
+        // Calculate how many elements to process in the unrolled loop
+        sub.s32         %main_iterations, %width, %remainder_count;       // Number of elements to process in groups of 4
+        mul.wide.s32    %row_byte_offset, %row_offset, 4;           // Byte offset for matrix A's row (row_offset * 4)
+        
+        // Compute column offset for matrix B
+        mul.wide.s32    %col_byte_offset, %col, 4;          // Byte offset for matrix B's column (col * 4)
+        add.s64         %b_col_ptr, %addr_b_global, %col_byte_offset;     // Pointer to first element in matrix B's column
+        
+        // Calculate stride for moving down columns in matrix B
+        mul.wide.s32    %row_stride_bytes, %width, 4;          // Stride between consecutive rows (matrix_width * 4 bytes)
+        
+        // Reinitialize dot product sum and counters
+        mov.f32         %dot_product, 0f00000000;       // Initialize dot product accumulator to 0
+        mov.u32         %k_index, 0;                // Initialize element index to 0
+        mov.u64         %a_ptr, %addr_a_global;            // Initialize pointer to start of matrix A
+
+        // Main computation loop - unrolled by 4 for better performance
+$MAIN_LOOP:
+        // For each iteration, compute: sum += A[row][k] * B[k][col] for 4 consecutive k values
+        
+        add.s64         %a_row_k_ptr, %a_ptr, %row_byte_offset;     // Pointer to A[row][k]
+        ld.global.f32   %b_k_col, [%b_col_ptr];          // Load B[k][col]
+        ld.global.f32   %a_row_k, [%a_row_k_ptr];          // Load A[row][k]
+        fma.rn.f32      %temp_sum_1, %a_row_k, %b_k_col, %dot_product; // Multiply-add: sum += A[row][k] * B[k][col]
+        
+        // Process k+1
+        add.s64         %b_k1_col_ptr, %b_col_ptr, %row_stride_bytes;     // Move to B[k+1][col]
+        ld.global.f32   %b_k1_col, [%b_k1_col_ptr];          // Load B[k+1][col]
+        ld.global.f32   %a_row_k1, [%a_row_k_ptr+4];        // Load A[row][k+1]
+        fma.rn.f32      %temp_sum_2, %a_row_k1, %b_k1_col, %temp_sum_1; // sum += A[row][k+1] * B[k+1][col]
+        
+        // Process k+2
+        add.s64         %b_k2_col_ptr, %b_k1_col_ptr, %row_stride_bytes;     // Move to B[k+2][col]
+        ld.global.f32   %b_k2_col, [%b_k2_col_ptr];          // Load B[k+2][col]
+        ld.global.f32   %a_row_k2, [%a_row_k_ptr+8];        // Load A[row][k+2]
+        fma.rn.f32      %temp_sum_3, %a_row_k2, %b_k2_col, %temp_sum_2; // sum += A[row][k+2] * B[k+2][col]
+        
+        // Process k+3
+        add.s64         %b_k3_col_ptr, %b_k2_col_ptr, %row_stride_bytes;     // Move to B[k+3][col]
+        add.s64         %b_col_ptr, %b_k3_col_ptr, %row_stride_bytes;     // Prepare pointer for next iteration (to B[k+4][col])
+        ld.global.f32   %b_k3_col, [%b_k3_col_ptr];          // Load B[k+3][col]
+        ld.global.f32   %a_row_k3, [%a_row_k_ptr+12];       // Load A[row][k+3]
+        fma.rn.f32      %dot_product, %a_row_k3, %b_k3_col, %temp_sum_3; // sum += A[row][k+3] * B[k+3][col]
+        
+        // Update counters and check if we need another iteration
+        add.s32         %k_index, %k_index, 4;          // Increment element index by 4
+        add.s64         %a_ptr, %a_ptr, 16;       // Increment pointer to matrix A (4 elements * 4 bytes)
+        add.s32         %main_iterations, %main_iterations, -4;         // Decrement remaining elements by 4
+        setp.ne.s32     %has_more_iterations, %main_iterations, 0;           // Check if there are more elements to process
+        @%has_more_iterations bra        $MAIN_LOOP;             // If so, continue loop
+
+        // Handle remainder elements (if matrix_width is not divisible by 4)
+$HANDLE_REMAINDER:
+        setp.eq.s32     %no_remainder, %remainder_count, 0;           // Check if remainder is 0
+        @%no_remainder bra        $STORE_RESULT;          // If no remainder, skip to storing result
+        
+        // Setup for processing remainder elements
+        mad.lo.s32      %b_idx_remainder, %k_index, %width, %col;  // Calculate index for B: k*matrix_width + col
+        mul.wide.s32    %b_byte_offset_remainder, %b_idx_remainder, 4;         // Convert to byte offset
+        add.s64         %b_rem_ptr, %addr_b_global, %b_byte_offset_remainder;     // Pointer to B[k][col] for remainder
+        
+        mul.wide.s32    %col_stride_bytes, %width, 4;         // Stride for matrix B column traversal
+        add.s32         %a_idx_remainder, %k_index, %row_offset;        // Calculate index for A: row*matrix_width + k
+        mul.wide.s32    %a_byte_offset_remainder, %a_idx_remainder, 4;         // Convert to byte offset
+        add.s64         %a_rem_ptr, %addr_a_global, %a_byte_offset_remainder;     // Pointer to A[row][k] for remainder
+
+        // Process remainder elements one by one
+$REMAINDER_LOOP:
+        ld.global.f32   %b_rem_val, [%b_rem_ptr];          // Load B[k][col]
+        ld.global.f32   %a_rem_val, [%a_rem_ptr];          // Load A[row][k]
+        fma.rn.f32      %dot_product, %a_rem_val, %b_rem_val, %dot_product; // sum += A[row][k] * B[k][col]
+        add.s64         %b_rem_ptr, %b_rem_ptr, %col_stride_bytes;    // Move to B[k+1][col]
+        add.s64         %a_rem_ptr, %a_rem_ptr, 4;        // Move to A[row][k+1]
+        add.s32         %remainder_count, %remainder_count, -1;         // Decrement remaining elements
+        setp.ne.s32     %has_more_remainder, %remainder_count, 0;           // Check if more elements to process
+        @%has_more_remainder bra        $REMAINDER_LOOP;        // If so, continue loop
+
+        // Store final result to global memory
+$STORE_RESULT:
+        add.s32         %result_idx, %row_offset, %col;         // Calculate flat index: row*matrix_width + col
+        cvta.to.global.u64      %result_global_addr, %addr_result;   // Convert result_matrix to global memory address
+        mul.wide.s32    %result_byte_offset, %result_idx, 4;         // Convert index to byte offset
+        add.s64         %result_ptr, %result_global_addr, %result_byte_offset;    // Calculate final address in result matrix
+        st.global.f32   [%result_ptr], %dot_product;          // Store computed value to C[row][col]
+
+        // Exit point for the kernel
+$EXIT:
+        ret;  // Return from kernel
+
+}

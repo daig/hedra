@@ -1,0 +1,18 @@
+# Compilation provided by Compiler Explorer at https://godbolt.org/
+.visible .func  (.param .b32 func_retval0) computeWeightedAverage(
+        .param .b32 param_0,
+        .param .b32 param_1,
+        .param .b32 param_2
+)
+{
+
+        ld.param.f32    %f1, [param_0];
+        ld.param.f32    %f2, [param_1];
+        ld.param.f32    %f3, [param_2];
+        mul.f32         %f4, %f2, 0f3ECCCCCD;
+        fma.rn.f32      %f5, %f1, 0f3ECCCCCD, %f4;
+        fma.rn.f32      %f6, %f3, 0f3E4CCCCD, %f5;
+        st.param.f32    [func_retval0+0], %f6;
+        ret;
+
+}

@@ -1,70 +1,91 @@
-# PTX Parser Checklist
+# PTX Parser Checklist - Function Parsing Implementation
 
-This document provides a checklist of all the parsing functions required for the "hedra" project's PTX (Parallel Thread Execution) parser, including those needed for intermediate Abstract Syntax Tree (AST) types. The project is focused on parsing PTX, an assembly language for NVIDIA GPUs, and the checklist is derived from the project's directory structure, file map, and AST definitions.
+This updated checklist outlines the components needed to successfully parse complete PTX functions like the example provided in example_dynamic.ptx. It builds upon the existing parser components and focuses on the specific additions required to handle full function declarations, parameters, and function bodies with control flow.
 
-The goal is to identify parsing functions that will process PTX source code into corresponding AST nodes, as defined in the `ptx_ast` module. These functions will form the core of the parser, handling various syntactic elements such as directives, instructions, labels, constants, identifiers, types, statements, expressions, initializers, variable declarations, comments, and C-style directives.
+## Core Function Components
 
-Below is the checklist, organized as a series of tasks with descriptions of each parsing function's purpose. Each item is marked with a checkbox `[ ]` to indicate that implementation is pending, unless otherwise noted.
+- [ ] **parse_function_declaration**
+  - **Purpose**: Parse the complete function declaration including attributes, directives, name, and return type signature.
+  - **Details**: Handle patterns like `.visible .entry computeKernel(float*, int, int)(` which includes:
+    - Function attributes (`.visible`)
+    - Function directive (`.entry`) 
+    - Function name (`computeKernel`)
+    - Return type signature (`float*, int, int`)
+  - **Implementation**: Create `ptx_function_parse.h/c` with functions to parse the declaration header.
 
-## Parsing Functions
+- [ ] **parse_parameter_list**
+  - **Purpose**: Parse function parameter declarations inside the second parenthesis set.
+  - **Details**: Handle parameters like `.param .u64 grid_param`, which specify state space, type, and name.
+  - **Implementation**: Extend current declaration parser or create dedicated parameter parser that reuses existing type and state space parsers.
 
-- [ x ] **parse_directive**
-  - **Purpose**: Parses PTX directives (e.g., `.version`, `.target`, `.func`, `.entry`) and constructs a `ptx_directive_t` AST node.
-  - **Details**: Directives define the environment, scope, or entry points in PTX code (e.g., `.version 7.0`, `.entry kernel()`). The function must recognize directive keywords from the `ptx_directive.h` enum and handle their specific syntax.
+- [ ] **parse_code_block**
+  - **Purpose**: Parse complete code blocks enclosed in braces, including all contained statements.
+  - **Details**: Handle entire function bodies including nested blocks, labels, and control flow.
+  - **Implementation**: Create a parser that collects multiple statements between `{` and `}` markers.
 
-- [ x ] **parse_instruction**
-  - **Purpose**: Parses PTX instructions (e.g., `add`, `mul`, `ld`) and constructs a `ptx_instruction_t` AST node.
-  - **Details**: Instructions are the operational core of PTX, such as `add.s32 %r0, %r1, %r2`. This function needs to identify instruction opcodes from `ptx_instruction.h` and parse their operands, which may include registers, constants, or types.
+## Enhanced Statement Parsing
 
-- [ x ] **parse_label**
-  - **Purpose**: Parses labels (e.g., `my_label:`) and constructs a `ptx_label_t` AST node.
-  - **Details**: Labels are identifiers followed by a colon, used for control flow (e.g., branching). The function extracts the label name and ensures it conforms to PTX naming rules.
+- [ ] **parse_predicated_instruction**
+  - **Purpose**: Parse instructions that are conditionally executed based on a predicate.
+  - **Details**: Handle patterns like `@%p_out_of_bounds bra $RETURN;` where the instruction execution depends on a predicate.
+  - **Implementation**: Extend the statement parser to recognize predicate prefixes and associate them with instructions.
 
-- [ x ] **parse_constant**
-  - **Purpose**: Parses constant values (e.g., integers, floats, predicates) and constructs a `ptx_constant_t` AST node.
-  - **Details**: Constants appear in instructions or initializers (e.g., `42`, `3.14`, `1 (as predicate)`). This function may include sub-functions like:
-    - `parse_integer_constant` for signed/unsigned integers (e.g., `.s64 -42`, `.u32 0xFF`).
-    - `parse_float_constant` for floating-point values (e.g., `.f32 1.5`, `.f64 3.14159`).
-    - `parse_predicate_constant` for predicate values (e.g., `0 (false)`, `1 (true)`).
-  - **Note**: Partially implemented in `ptx_constant_parse.c`, as indicated by the `ptx_parse` directory.
+- [ ] **parse_complex_memory_operands**
+  - **Purpose**: Parse memory access operations with offset addressing.
+  - **Details**: Handle patterns like `[%rd_current_addr+4]` which include register plus offset addressing.
+  - **Implementation**: Extend operand parsing to recognize and handle address calculations.
 
-- [ x ] **parse_identifier**
-  - **Purpose**: Parses identifiers (e.g., variable names, register names) and constructs a `ptx_identifier_t` AST node.
-  - **Details**: Identifiers can be user-defined (e.g., `my_var`) or predefined (e.g., `%clock`), as per `ptx_identifier.h` and `ptx_predefined_identifier.h`. The function must distinguish between these categories and validate syntax.
+- [ ] **parse_specialized_float_constants**
+  - **Purpose**: Parse specialized floating-point constant formats used in PTX.
+  - **Details**: Handle hexadecimal float constants like `0f3ECCCCCD` (0.4 in IEEE 754 format).
+  - **Implementation**: Extend the constant parser to recognize and convert these specialized formats.
 
-- [ x ] **parse_type**
-  - **Purpose**: Parses type specifiers (e.g., `.u32`, `.f64`, `.texref`) and constructs a `ptx_type_t` AST node.
-  - **Details**: Types include fundamental types (e.g., `.s16`, `.f32`), graphics types (e.g., `.texref`), and alternate float formats (e.g., `.bf16`), as defined in `ptx_type.h`, `ptx_type_fundamental.h`, `ptx_type_graphics.h`, and `ptx_alternate_float_format.h`. This function must handle type keywords and their context.
+## AST Structure Enhancements
 
-- [ x ] **parse_statement**
-  - **Purpose**: Parses a complete PTX statement and constructs a `ptx_statement_t` AST node.
-  - **Details**: A statement combines an optional label with either a directive or instruction (e.g., `my_label: add.s32 %r0, %r1, %r2`). This function integrates `parse_label`, `parse_directive`, and `parse_instruction` to build the AST node, as per `ptx_statement.h`.
+- [ ] **ptx_function_t**
+  - **Purpose**: Define an AST structure to represent complete PTX functions.
+  - **Details**: Include fields for attributes, directives, name, return type, parameters, and body statements.
+  - **Implementation**: Create this structure in a new `ptx_ast/include/ptx_ast/ptx_function.h` file.
 
-- [ x ] **parse_expression**
-  - **Purpose**: Parses constant expressions (e.g., `1 + 2`, `!0`) and constructs a `ptx_expr_t` AST node.
-  - **Details**: Expressions are used in initializers or operands, supporting unary, binary, and ternary operators (e.g., `+`, `*`, `?:`), as defined in `ptx_constant_expr.h`. The function must handle operator precedence and build an expression tree.
+- [ ] **ptx_parameter_t**
+  - **Purpose**: Define an AST structure for function parameters.
+  - **Details**: Include fields for state space, type, and name, possibly reusing existing declaration structures.
+  - **Implementation**: Add this to the function AST structure or create a separate header.
 
-- [ ] **parse_initializer**
-  - **Purpose**: Parses initializers for variable declarations (e.g., `= 42`, `= {1, 2}`) and constructs a `ptx_initializer_t` AST node.
-  - **Details**: Initializers can be scalar values, vectors, arrays, variable addresses, or masked values (e.g., `.global .s32 arr[2] = {1, 2}`, `.global .u8 byte = mask(foo, 0xFF)`). This function, based on `ptx_type_decl.h`, must recursively parse nested structures and handle various initializer kinds.
+- [ ] **ptx_code_block_t**
+  - **Purpose**: Define an AST structure for code blocks with multiple statements.
+  - **Details**: Include a list/array of statements contained within the block.
+  - **Implementation**: Create this structure to represent function bodies and other code blocks.
 
-- [ ] **parse_variable_declaration**
-  - **Purpose**: Parses variable declarations (e.g., `.global .u32 my_var = 42`) and constructs a `ptx_type_decl_t` AST node.
-  - **Details**: Declarations include a state space (e.g., `.global`), type, shape (scalar, vector, or array), name, and optional initializer, as per `ptx_type_decl.h`. This function integrates `parse_type`, `parse_identifier`, and `parse_initializer`, and handles array shapes (e.g., `[19][19]`) and vector sizes (e.g., `.v4`).
+## Integration Components
 
-- [ x ] **parse_comment**
-  - **Purpose**: Parses comments (e.g., `// my comment`) and constructs a `comment_t` AST node.
-  - **Details**: Comments are informational and typically ignored during execution but preserved in the AST for documentation or analysis, as per `comment.h`. The function extracts the comment text.
+- [ ] **ptx_function_module_parser**
+  - **Purpose**: Integrate function parsing into the module-level parser.
+  - **Details**: Allow a module to contain multiple function definitions.
+  - **Implementation**: Create a higher-level parser that uses the function parser to build a complete module.
 
-- [ x ] **parse_c_directive**
-  - **Purpose**: Parses C-style directives (e.g., `#include`, `#define`) and constructs a `c_directive_t` AST node.
-  - **Details**: If PTX code includes C preprocessor directives (hinted by `c_directive.h`), this function identifies and parses them. This is optional, depending on project requirements.
+- [ ] **pretty_printer_for_functions**
+  - **Purpose**: Create a pretty-printer for the function AST to assist with debugging.
+  - **Details**: Output structured, formatted PTX functions from their AST representation.
+  - **Implementation**: Create print functions that recursively handle all parts of a function.
 
-## Notes
+## Implementation Order
 
-- **Existing Implementation**: The `parse_constant` function is implemented in `ptx_constant_parse.c` within the `ptx_parse` directory, covering integer, float, and predicate constants.
-- **Scope Limitation**: This checklist focuses on parsing functions for individual AST types rather than higher-level constructs like entire modules or function bodies, which might be composed from these functions (e.g., `parse_module` could use `parse_statement` repeatedly).
-- **Assumptions**: The parser assumes a tokenizer or lexer provides input tokens, which these functions then process into AST nodes. Error handling and syntax validation are implementation details not listed here.
-- **PTX Specification**: The functions must align with the PTX language specification (e.g., directives from `ptx_directive.h`, instructions from `ptx_instruction.h`), ensuring all syntactic elements are covered.
+1. Start with the AST structure enhancements to define the data representations
+2. Implement the function declaration parser to handle the header portion
+3. Implement the parameter list parser for function arguments
+4. Implement the code block parser to collect statements
+5. Enhance statement parsing to handle predicates and complex operands
+6. Integrate all components into a complete function parser
+7. Create the pretty-printer for testing and verification
 
-This checklist provides a comprehensive foundation for building the PTX parser, ensuring all intermediate AST types in the `hedra` project are accounted for. Each function will need to be implemented with detailed syntax rules and integrated into the broader parsing framework.
+## Testing Strategy
+
+- Create unit tests for each component individually
+- Create integration tests with complete functions of increasing complexity
+- Test with edge cases like empty functions, functions with many parameters, nested predicates
+- Verify round-trip parsing and printing reproduces equivalent PTX code
+
+---
+
+This checklist provides a focused roadmap for implementing PTX function parsing based on the example provided. Each component builds on the existing parser infrastructure while adding the specific capabilities needed to handle complete function declarations and bodies.

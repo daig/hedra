@@ -6,24 +6,32 @@ bool is_followsym(char c) {
 }
 
 bool is_valid_user_defined_identifier(const char* str) {
-    if (!str || !*str) { return false; }
+    if (!str || !*str) { 
+        return false; 
+    }
 
     // First character must be letter, underscore, dollar, or percent
     if (isalpha(*str)) {
         // If starts with letter, rest can be followsym
         str++;
         while (*str) {
-            if (!is_followsym(*str)) { return false; }
+            if (!is_followsym(*str)) { 
+                return false; 
+            }
             str++; 
         }
         return true;
     } else if (*str == '_' || *str == '$' || *str == '%') {
         // If starts with _, $, or %, must have at least one more char
         str++;
-        if (!*str) { return false; }
+        if (!*str) { 
+            return false; 
+        }
         // Rest must be followsym
         while (*str) {
-            if (!is_followsym(*str)) { return false; }
+            if (!is_followsym(*str)) { 
+                return false; 
+            }
             str++; 
         }
         return true;

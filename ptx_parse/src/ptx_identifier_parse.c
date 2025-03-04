@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdio.h>
 
 /**
  * @brief Parse a PTX identifier string and construct a ptx_identifier_t
@@ -51,34 +52,46 @@ bool parse_identifier(const char* str, ptx_identifier_t** identifier) {
         }
     } 
     // Otherwise, it's a user-defined identifier
-    else if (is_valid_user_defined_identifier(str)) {
-        (*identifier)->tag = PTX_IDENTIFIER_USER_DEFINED;
-        
-        // Determine the length of the identifier
+    else {
+        // Extract just the identifier part (up to whitespace or special chars)
         size_t len = 0;
         const char* tmp = str;
-        while (*tmp && !isspace(*tmp)) {
+        while (*tmp && !isspace(*tmp) && *tmp != '(' && *tmp != ',' && *tmp != ')') {
             len++;
             tmp++;
         }
         
-        // Allocate memory for the identifier name
-        (*identifier)->user_defined = (char*)malloc(len + 1);
-        if (!(*identifier)->user_defined) {
+        // Create a temporary null-terminated string for the identifier
+        char* id_str = (char*)malloc(len + 1);
+        if (!id_str) {
             free(*identifier);
             *identifier = NULL;
-            return false; // Memory allocation failed
+            return false;
         }
         
-        // Copy the identifier
-        strncpy((*identifier)->user_defined, str, len);
-        (*identifier)->user_defined[len] = '\0';
+        strncpy(id_str, str, len);
+        id_str[len] = '\0';
         
-        return true;
+        // Now check if it's a valid user-defined identifier
+        if (is_valid_user_defined_identifier(id_str)) {
+            (*identifier)->tag = PTX_IDENTIFIER_USER_DEFINED;
+            
+            // Allocate memory for the identifier name
+            (*identifier)->user_defined = strdup(id_str);
+            if (!(*identifier)->user_defined) {
+                free(id_str);
+                free(*identifier);
+                *identifier = NULL;
+                return false; // Memory allocation failed
+            }
+            
+            free(id_str);
+            return true;
+        }
+        
+        free(id_str);
+        free(*identifier);
+        *identifier = NULL;
+        return false;
     }
-    
-    // Not a valid identifier
-    free(*identifier);
-    *identifier = NULL;
-    return false;
 } 

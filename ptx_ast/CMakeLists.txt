@@ -23,6 +23,7 @@ set(SOURCES
     src/ptx_scalar_float_type.c
     src/ptx_statespace.c
     src/ptx_type_graphics.c
+    src/ptx_function.c
 )
 
 # Header files
@@ -48,6 +49,7 @@ set(HEADERS
     include/ptx_ast/ptx_type_fundamental.h
     include/ptx_ast/ptx_type_graphics.h
     include/ptx_ast/ptx_type_packed_float.h
+    include/ptx_ast/ptx_function.h
 )
 
 # Create library

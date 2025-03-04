@@ -279,4 +279,15 @@ target_include_directories(type_decl_parse_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_print/include
     ${CMAKE_SOURCE_DIR}/prelude/include
 )
-install(TARGETS type_decl_parse_test DESTINATION bin) 
+install(TARGETS type_decl_parse_test DESTINATION bin)
+
+# Test for function parsing
+add_executable(function_parse_test ptx_parse/test_function_parse.c)
+target_link_libraries(function_parse_test ptx_parse ptx_print)
+target_include_directories(function_parse_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS function_parse_test DESTINATION bin) 
