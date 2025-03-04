@@ -22,6 +22,7 @@ set(SOURCES
     src/ptx_declaration_lhs_print.c
     src/ptx_attribute_print.c
     src/ptx_function_print.c
+    src/ptx_code_block_print.c
 )
 
 # List of header files
@@ -43,6 +44,7 @@ set(HEADERS
     include/ptx_print/ptx_declaration_lhs_print.h
     include/ptx_print/ptx_attribute_print.h
     include/ptx_print/ptx_function_print.h
+    include/ptx_print/ptx_code_block_print.h
 )
 
 # Create the library

@@ -24,5 +24,6 @@
 #include <ptx_print/ptx_declaration_lhs_print.h>
 #include <ptx_print/ptx_attribute_print.h>
 #include <ptx_print/ptx_function_print.h>
+#include <ptx_print/ptx_code_block_print.h>
 
 #endif /* PTX_PRINT_H */ 

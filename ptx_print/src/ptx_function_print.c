@@ -5,6 +5,7 @@
 #include "ptx_print/ptx_statespace_print.h"
 #include "ptx_print/ptx_type_print.h"
 #include "ptx_print/ptx_attribute_print.h"
+#include "ptx_print/ptx_code_block_print.h"
 #include "prelude/ptx_array_shape.h"
 
 // Function prototypes for external functions we use
@@ -249,17 +250,19 @@ bool ptx_print_function(FILE* out, const ptx_function_t* function) {
         return false;
     }
 
-    // Print function attribute if present
-    if (function->has_attribute) {
-        char attr_buffer[256];  // Buffer for the attribute string
-        int attr_len = print_attribute_to_buffer(attr_buffer, sizeof(attr_buffer), &function->attribute);
-        
-        if (attr_len < 0) {
-            // Buffer too small or other error
+    // Print function body if not extern
+    if (!function->is_extern && function->body) {
+        if (fprintf(out, "\n") < 0) {
             return false;
         }
         
-        if (fprintf(out, " %s", attr_buffer) < 0) {
+        // Print the code block with proper indentation
+        if (!ptx_print_code_block(out, function->body, 0)) {
+            return false;
+        }
+    } else {
+        // For extern functions, just print a semicolon
+        if (fprintf(out, ";") < 0) {
             return false;
         }
     }

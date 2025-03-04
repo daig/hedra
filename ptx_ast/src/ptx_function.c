@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ptx_ast/ptx_function.h"
+#include "ptx_ast/ptx_code_block.h"
 
 /**
  * Create a new function parameter
@@ -66,6 +67,14 @@ ptx_function_t* ptx_function_create(ptx_function_directive_t directive, const ch
         free(function);
         return NULL;
     }
+
+    // Initialize the body as an empty code block
+    function->body = ptx_code_block_init();
+    if (!function->body) {
+        free(function->name);
+        free(function);
+        return NULL;
+    }
     
     return function;
 }
@@ -80,8 +89,12 @@ void ptx_function_free(ptx_function_t* function) {
     
     free(function->name);
     ptx_parameter_free(function->parameters);
-    // Note: ptx_statement_free(function->body) would be necessary
-    // when statements are implemented
+    ptx_parameter_free(function->return_parameters);
+    
+    // Free the code block body
+    if (function->body) {
+        ptx_code_block_free(function->body);
+    }
     
     free(function);
 } 

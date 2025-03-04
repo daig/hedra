@@ -12,6 +12,7 @@
 #include "ptx_ast/ptx_type.h"
 #include "ptx_ast/ptx_declaration_lhs.h"
 #include "ptx_ast/ptx_statement.h"
+#include "ptx_ast/ptx_code_block.h"
 #include "prelude/ptx_array_shape.h"
 
 /**
@@ -58,9 +59,41 @@ typedef struct ptx_function {
     char* name;                          // Function name
     ptx_parameter_t* return_parameters;  // Return parameters (for .func only)
     ptx_parameter_t* parameters;         // Input parameters
-    ptx_statement_t* body;               // Function body statements
+    ptx_code_block_t* body;              // Function body as a code block
     bool has_attribute;                  // Whether this function has an attribute
     ptx_attribute_t attribute;           // Function attribute if present
 } ptx_function_t;
+
+/**
+ * Create a new function parameter
+ * 
+ * @param type The parameter type
+ * @param name The parameter name
+ * @return A new parameter object, or NULL on failure
+ */
+ptx_parameter_t* ptx_parameter_create(ptx_type_t type, const char* name);
+
+/**
+ * Free a function parameter and all its resources
+ * 
+ * @param param The parameter to free
+ */
+void ptx_parameter_free(ptx_parameter_t* param);
+
+/**
+ * Create a new function
+ * 
+ * @param directive The function directive (entry or func)
+ * @param name The function name
+ * @return A new function object, or NULL on failure
+ */
+ptx_function_t* ptx_function_create(ptx_function_directive_t directive, const char* name);
+
+/**
+ * Free a function and all its resources
+ * 
+ * @param function The function to free
+ */
+void ptx_function_free(ptx_function_t* function);
 
 #endif /* PTX_FUNCTION_H */ 

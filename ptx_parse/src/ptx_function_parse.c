@@ -9,6 +9,7 @@
 #include "ptx_parse/ptx_type_parse.h"
 #include "ptx_parse/ptx_attribute_parse.h"
 #include "ptx_parse/ptx_statespace_parse.h"
+#include "ptx_parse/ptx_code_block_parse.h"
 
 // Helper function to parse whitespace and comments
 static size_t skip_whitespace_and_comments(const char* input) {
@@ -535,5 +536,53 @@ bool ptx_parse_function_declaration(const char* input, size_t* consumed, ptx_fun
     }
     
     *consumed = pos;
+    return true;
+}
+
+/**
+ * Parse a complete PTX function including its body
+ */
+bool ptx_parse_function(const char* input, size_t* consumed, ptx_function_t** result) {
+    if (!input || !consumed || !result) {
+        return false;
+    }
+    
+    size_t pos = 0;
+    
+    // Create a new function to parse into
+    ptx_function_t* function = (ptx_function_t*)malloc(sizeof(ptx_function_t));
+    if (!function) {
+        return false;
+    }
+    
+    // Parse the function declaration
+    size_t decl_consumed = 0;
+    if (!ptx_parse_function_declaration(input + pos, &decl_consumed, function)) {
+        free(function);
+        return false;
+    }
+    
+    pos += decl_consumed;
+    
+    // Skip whitespace and comments
+    pos += skip_whitespace_and_comments(input + pos);
+    
+    // Parse the function body (code block)
+    ptx_code_block_t* body = NULL;
+    size_t body_consumed = 0;
+    
+    if (!ptx_parse_code_block(input + pos, &body_consumed, &body)) {
+        ptx_function_free(function);
+        return false;
+    }
+    
+    // Set the function body and update consumed characters
+    function->body = body;
+    pos += body_consumed;
+    
+    // Return the result
+    *result = function;
+    *consumed = pos;
+    
     return true;
 } 

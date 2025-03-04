@@ -28,5 +28,6 @@
 #include <ptx_ast/ptx_ast/ptx_type_graphics.h>
 #include <ptx_ast/ptx_ast/ptx_type_packed_float.h>
 #include <ptx_ast/ptx_ast/ptx_function.h>
+#include <ptx_ast/ptx_ast/ptx_code_block.h>
 
 #endif /* PTX_AST_H */ 

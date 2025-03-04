@@ -25,5 +25,6 @@
 #include <ptx_parse/ptx_type_decl_parse.h>
 #include <ptx_parse/ptx_attribute_parse.h>
 #include <ptx_parse/ptx_function_parse.h>
+#include <ptx_parse/ptx_code_block_parse.h>
 
 #endif /* PTX_PARSE_H */ 

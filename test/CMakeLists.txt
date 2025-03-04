@@ -118,6 +118,28 @@ target_link_libraries(c_directive_parse_test ptx_parse)
 target_include_directories(c_directive_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
 install(TARGETS c_directive_parse_test DESTINATION bin)
 
+# New test for code block parsing
+add_executable(code_block_parse_test ptx_parse/test_code_block_parse.c)
+target_link_libraries(code_block_parse_test ptx_parse ptx_print ptx_ast prelude)
+target_include_directories(code_block_parse_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS code_block_parse_test DESTINATION bin)
+
+# New test for function with body parsing
+add_executable(function_with_body_parse_test ptx_parse/test_function_with_body_parse.c)
+target_link_libraries(function_with_body_parse_test ptx_parse ptx_print ptx_ast prelude)
+target_include_directories(function_with_body_parse_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS function_with_body_parse_test DESTINATION bin)
+
 # Tests for ptx_print
 add_executable(directive_print_test ptx_print/test_directive_print.c)
 target_link_libraries(directive_print_test ptx_print ptx_parse)

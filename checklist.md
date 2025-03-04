@@ -64,7 +64,7 @@ This updated checklist outlines the components needed to successfully parse comp
   - **Details**: Allow a module to contain multiple function definitions.
   - **Implementation**: Create a higher-level parser that uses the function parser to build a complete module.
 
-- [ ] **pretty_printer_for_functions**
+- [ x ] **pretty_printer_for_functions**
   - **Purpose**: Create a pretty-printer for the function AST to assist with debugging.
   - **Details**: Output structured, formatted PTX functions from their AST representation.
   - **Implementation**: Create print functions that recursively handle all parts of a function.

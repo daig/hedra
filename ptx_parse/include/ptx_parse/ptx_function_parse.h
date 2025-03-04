@@ -29,4 +29,14 @@ bool ptx_parse_function_declaration(const char* input, size_t* consumed, ptx_fun
  */
 bool ptx_parse_parameter_list(const char* input, size_t* consumed, ptx_parameter_t** result);
 
+/**
+ * @brief Parse a complete PTX function including its body
+ * 
+ * @param input The input string to parse
+ * @param consumed The number of characters consumed by parsing
+ * @param result Pointer to receive the resulting function AST
+ * @return true if parsing succeeded, false otherwise
+ */
+bool ptx_parse_function(const char* input, size_t* consumed, ptx_function_t** result);
+
 #endif /* PTX_FUNCTION_PARSE_H */ 
