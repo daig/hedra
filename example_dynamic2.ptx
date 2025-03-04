@@ -1,0 +1,88 @@
+Parsing file: example_dynamic.ptx
+File header (before code block):
+// Compilation provided by Compiler Explorer at https://godbolt.org/
+.visible .entry computeKernel(
+        .param .u64 grid_param,  // Pointer to 2D grid of floating-point values
+        .param .u32 N_param,     // Number of rows in the grid
+        .param .u32 M_param      // Number of columns in the grid
+)
+
+Successfully parsed code block
+Number of statements: 32
+
+Statements:
+No.   Label                Statement
+----------------------------------------------
+0     (none)               ld.param.u64 %rd_grid_ptr, [grid_param];
+1     (none)               ld.param.u32 %r_num_rows, [N_param];
+2     (none)               ld.param.u32 %r_num_cols, [M_param];
+3     (none)               mov.u32 %r_block_dim_y, %ntid.y;
+4     (none)               mov.u32 %r_block_idx_y, %ctaid.y;
+5     (none)               mov.u32 %r_thread_idx_y, %tid.y;
+6     (none)               mad.lo.s32 %r_thread_y, %r_block_idx_y, %r_block_dim_y, %r_thread_idx_y;
+7     (none)               add.s32 %r_thread_y_plus1, %r_thread_y, 1;
+8     (none)               mov.u32 %r_block_dim_x, %ntid.x;
+9     (none)               mov.u32 %r_block_idx_x, %ctaid.x;
+10    (none)               mov.u32 %r_thread_idx_x, %tid.x;
+11    (none)               mad.lo.s32 %r_thread_x, %r_block_idx_x, %r_block_dim_x, %r_thread_idx_x;
+12    (none)               add.s32 %r_thread_x_plus1, %r_thread_x, 1;
+13    (none)               setp.ge.s32 %p_out_of_bounds_y, %r_thread_y_plus1, %r_num_rows;
+14    (none)               setp.ge.s32 %p_out_of_bounds_x, %r_thread_x_plus1, %r_num_cols;
+15    (none)               or.pred %p_out_of_bounds, %p_out_of_bounds_y, %p_out_of_bounds_x;
+16    (none)               @%p_out_of_bounds bra $RETURN;
+17    (none)               cvta.to.global.u64 %rd_global_grid_ptr, %rd_grid_ptr;
+18    (none)               mad.lo.s32 %r_linear_idx_current, %r_thread_y, %r_num_cols, %r_thread_x;
+19    (none)               mad.lo.s32 %r_linear_idx_next_row, %r_thread_y_plus1, %r_num_cols, %r_thread_x;
+20    (none)               mul.wide.s32 %rd_current_offset, %r_linear_idx_current, 4;
+21    (none)               add.s64 %rd_current_addr, %rd_global_grid_ptr, %rd_current_offset;
+22    (none)               mul.wide.s32 %rd_next_row_offset, %r_linear_idx_next_row, 4;
+23    (none)               add.s64 %rd_next_row_addr, %rd_global_grid_ptr, %rd_next_row_offset;
+24    (none)               ld.global.f32 %f_val_right, [%rd_current_addr+4];
+25    (none)               ld.global.f32 %f_val_bottom, [%rd_next_row_addr];
+26    (none)               mul.f32 %f_weighted_bottom, %f_val_bottom, 0f3ECCCCCD;
+27    (none)               fma.rn.f32 %f_weighted_sum_rb, %f_val_right, 0f3ECCCCCD, %f_weighted_bottom;
+28    (none)               ld.global.f32 %f_val_current, [%rd_current_addr];
+29    (none)               fma.rn.f32 %f_weighted_result, %f_val_current, 0f3E4CCCCD, %f_weighted_sum_rb;
+30    (none)               st.global.f32 [%rd_next_row_addr+4], %f_weighted_result;
+31    $RETURN              $RETURN: ret;
+
+Total labeled statements: 1
+
+Labels found:
+  - $RETURN (statement 31)
+
+Reconstructed code block:
+{
+    ld.param.u64 %rd_grid_ptr, [grid_param];
+    ld.param.u32 %r_num_rows, [N_param];
+    ld.param.u32 %r_num_cols, [M_param];
+    mov.u32 %r_block_dim_y, %ntid.y;
+    mov.u32 %r_block_idx_y, %ctaid.y;
+    mov.u32 %r_thread_idx_y, %tid.y;
+    mad.lo.s32 %r_thread_y, %r_block_idx_y, %r_block_dim_y, %r_thread_idx_y;
+    add.s32 %r_thread_y_plus1, %r_thread_y, 1;
+    mov.u32 %r_block_dim_x, %ntid.x;
+    mov.u32 %r_block_idx_x, %ctaid.x;
+    mov.u32 %r_thread_idx_x, %tid.x;
+    mad.lo.s32 %r_thread_x, %r_block_idx_x, %r_block_dim_x, %r_thread_idx_x;
+    add.s32 %r_thread_x_plus1, %r_thread_x, 1;
+    setp.ge.s32 %p_out_of_bounds_y, %r_thread_y_plus1, %r_num_rows;
+    setp.ge.s32 %p_out_of_bounds_x, %r_thread_x_plus1, %r_num_cols;
+    or.pred %p_out_of_bounds, %p_out_of_bounds_y, %p_out_of_bounds_x;
+    @%p_out_of_bounds bra $RETURN;
+    cvta.to.global.u64 %rd_global_grid_ptr, %rd_grid_ptr;
+    mad.lo.s32 %r_linear_idx_current, %r_thread_y, %r_num_cols, %r_thread_x;
+    mad.lo.s32 %r_linear_idx_next_row, %r_thread_y_plus1, %r_num_cols, %r_thread_x;
+    mul.wide.s32 %rd_current_offset, %r_linear_idx_current, 4;
+    add.s64 %rd_current_addr, %rd_global_grid_ptr, %rd_current_offset;
+    mul.wide.s32 %rd_next_row_offset, %r_linear_idx_next_row, 4;
+    add.s64 %rd_next_row_addr, %rd_global_grid_ptr, %rd_next_row_offset;
+    ld.global.f32 %f_val_right, [%rd_current_addr+4];
+    ld.global.f32 %f_val_bottom, [%rd_next_row_addr];
+    mul.f32 %f_weighted_bottom, %f_val_bottom, 0f3ECCCCCD;
+    fma.rn.f32 %f_weighted_sum_rb, %f_val_right, 0f3ECCCCCD, %f_weighted_bottom;
+    ld.global.f32 %f_val_current, [%rd_current_addr];
+    fma.rn.f32 %f_weighted_result, %f_val_current, 0f3E4CCCCD, %f_weighted_sum_rb;
+    st.global.f32 [%rd_next_row_addr+4], %f_weighted_result;
+    $RETURN: ret;
+}

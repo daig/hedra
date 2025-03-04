@@ -15,3 +15,14 @@ add_subdirectory(ptx_print)
 
 # Add test directory
 add_subdirectory(test)
+
+# Add the PTX parse tool executable
+add_executable(ptx_parse_tool ptx_parse_tool.c)
+target_link_libraries(ptx_parse_tool ptx_parse ptx_print ptx_ast prelude)
+target_include_directories(ptx_parse_tool PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS ptx_parse_tool DESTINATION bin)

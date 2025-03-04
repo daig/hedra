@@ -139,6 +139,17 @@ target_include_directories(code_block_parse_test PRIVATE
 )
 install(TARGETS code_block_parse_test DESTINATION bin)
 
+# New test for example_dynamic.ptx
+add_executable(test_example_dynamic ptx_parse/test_example_dynamic.c)
+target_link_libraries(test_example_dynamic ptx_parse ptx_print ptx_ast prelude)
+target_include_directories(test_example_dynamic PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+    ${CMAKE_SOURCE_DIR}/prelude/include
+)
+install(TARGETS test_example_dynamic DESTINATION bin)
+
 # New test for function with body parsing
 add_executable(function_with_body_parse_test ptx_parse/test_function_with_body_parse.c)
 target_link_libraries(function_with_body_parse_test ptx_parse ptx_print ptx_ast prelude)
