@@ -78,7 +78,7 @@ void test_1d_array_initializer() {
     // Parse the array initializer
     int pos = 0;
     ptx_initializer_array_t* array = NULL;
-    bool result = parse_initializer_array(input, &pos, shape, &array);
+    bool result = parse_initializer_array(input, &pos, shape, &array, PTX_TYPE_S32);
     
     // Check result
     assert(result);
@@ -117,7 +117,7 @@ void test_2d_array_initializer() {
     // Parse the array initializer
     int pos = 0;
     ptx_initializer_array_t* array = NULL;
-    bool result = parse_initializer_array(input, &pos, shape, &array);
+    bool result = parse_initializer_array(input, &pos, shape, &array, PTX_TYPE_S32);
     
     // Check result
     assert(result);
@@ -165,7 +165,7 @@ void test_3d_array_initializer() {
     // Parse the array initializer
     int pos = 0;
     ptx_initializer_array_t* array = NULL;
-    bool result = parse_initializer_array(input, &pos, shape, &array);
+    bool result = parse_initializer_array(input, &pos, shape, &array, PTX_TYPE_S32);
     
     // Check result
     assert(result);
@@ -237,7 +237,7 @@ void test_error_cases() {
         
         int pos = 0;
         ptx_initializer_array_t* array = NULL;
-        bool result = parse_initializer_array(test_cases[i].input, &pos, test_cases[i].shape, &array);
+        bool result = parse_initializer_array(test_cases[i].input, &pos, test_cases[i].shape, &array, PTX_TYPE_S32);
         
         if (test_cases[i].should_fail) {
             // Verify that parsing failed for cases that should fail

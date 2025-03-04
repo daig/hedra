@@ -183,7 +183,7 @@ static bool compare_initializer_arrays(const ptx_initializer_array_t* array1, co
             }
             
             if (value1->mask != value2->mask) {
-                printf("Different masks: %d vs %d\n", 
+                printf("Different masks: %lu vs %lu\n", 
                        value1->mask, 
                        value2->mask);
                 result = false;
@@ -233,7 +233,7 @@ static bool test_roundtrip(const char* input, size_t expected_dims, const size_t
     const char* input_str = input;
     int pos = 0;
     ptx_initializer_array_t* array1 = NULL;
-    bool success = parse_initializer_array(input_str, &pos, array_shape, &array1);
+    bool success = parse_initializer_array(input_str, &pos, array_shape, &array1, PTX_TYPE_S32);
     if (!success || !array1) {
         printf("Failed to parse input: %s\n", input);
         ptx_array_shape_free(array_shape);
@@ -282,7 +282,7 @@ static bool test_roundtrip(const char* input, size_t expected_dims, const size_t
     const char* buffer_str = buffer;
     pos = 0;
     ptx_initializer_array_t* array2 = NULL;
-    success = parse_initializer_array(buffer_str, &pos, array_shape, &array2);
+    success = parse_initializer_array(buffer_str, &pos, array_shape, &array2, PTX_TYPE_S32);
     if (!success || !array2) {
         printf("Failed to parse printed output: %s\n", buffer);
         ptx_initializer_array_free(array1);

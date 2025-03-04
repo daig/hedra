@@ -39,6 +39,12 @@ void ptx_parameter_free(ptx_parameter_t* param) {
     while (current) {
         ptx_parameter_t* next = current->next;
         free(current->name);
+        
+        // Free array shape if present
+        if (current->has_array_dims && current->array_shape) {
+            ptx_array_shape_free(current->array_shape);
+        }
+        
         free(current);
         current = next;
     }

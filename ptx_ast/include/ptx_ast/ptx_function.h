@@ -12,6 +12,7 @@
 #include "ptx_ast/ptx_type.h"
 #include "ptx_ast/ptx_declaration_lhs.h"
 #include "ptx_ast/ptx_statement.h"
+#include "prelude/ptx_array_shape.h"
 
 /**
  * Function directive types in PTX
@@ -41,6 +42,8 @@ typedef struct ptx_parameter {
     ptx_param_attribute_t attribute; // Parameter attribute (e.g., .ptr)
     bool has_alignment;              // Whether alignment is specified
     unsigned int alignment;          // Alignment value in bytes (if specified)
+    bool has_array_dims;             // Whether this parameter has array dimensions
+    ptx_array_shape_t array_shape;   // Array dimensions (NULL if not an array)
     struct ptx_parameter* next;      // Linked list of parameters
 } ptx_parameter_t;
 
@@ -52,7 +55,8 @@ typedef struct ptx_function {
     bool is_visible;                     // Whether function has .visible attribute
     bool is_extern;                      // Whether function is .extern
     char* name;                          // Function name
-    ptx_parameter_t* parameters;         // Parameters
+    ptx_parameter_t* return_parameters;  // Return parameters (for .func only)
+    ptx_parameter_t* parameters;         // Input parameters
     ptx_statement_t* body;               // Function body statements
     bool has_attribute;                  // Whether this function has an attribute
     ptx_attribute_t attribute;           // Function attribute if present

@@ -87,13 +87,42 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
     // Initialize parameter
     param->next = NULL;
     param->name = NULL;
+    param->attribute = PTX_PARAM_NONE;
+    param->has_alignment = false;
+    param->alignment = 4; // Default alignment is 4 bytes
+    param->has_array_dims = false;
+    param->array_shape = NULL;
     
-    // Check for .param directive
-    if (strncmp(input + pos, ".param", 6) != 0 || (!isspace(input[pos+6]) && input[pos+6] != 0)) {
+    // Check for state space directive (.param or .reg)
+    if (strncmp(input + pos, ".param", 6) == 0 && (isspace(input[pos+6]) || input[pos+6] == 0)) {
+        param->state_space = PTX_STATE_PARAM;
+        pos += 6;
+        pos += skip_whitespace_and_comments(input + pos);
+    } else if (strncmp(input + pos, ".reg", 4) == 0 && (isspace(input[pos+4]) || input[pos+4] == 0)) {
+        param->state_space = PTX_STATE_REG;
+        pos += 4;
+        pos += skip_whitespace_and_comments(input + pos);
+    } else {
         return false;
     }
-    pos += 6;
-    pos += skip_whitespace_and_comments(input + pos);
+    
+    // Check for alignment (can appear before or after type)
+    if (strncmp(input + pos, ".align", 6) == 0 && (isspace(input[pos+6]) || input[pos+6] == 0)) {
+        pos += 6;
+        pos += skip_whitespace_and_comments(input + pos);
+        
+        // Parse alignment value
+        char* endptr;
+        long alignment = strtol(input + pos, &endptr, 10);
+        if (endptr == input + pos || alignment <= 0) {
+            return false;
+        }
+        
+        param->has_alignment = true;
+        param->alignment = (unsigned int)alignment;
+        pos = endptr - input;
+        pos += skip_whitespace_and_comments(input + pos);
+    }
     
     // Parse type
     ptx_type_t type;
@@ -105,9 +134,11 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
     pos = end_ptr - input;
     pos += skip_whitespace_and_comments(input + pos);
     
-    // Check for .ptr attribute
-    param->attribute = PTX_PARAM_NONE;
-    if (strncmp(input + pos, ".ptr", 4) == 0 && (isspace(input[pos+4]) || input[pos+4] == '.' || input[pos+4] == 0)) {
+    // Check for .ptr attribute (only valid for .param state space)
+    if (param->state_space == PTX_STATE_PARAM && 
+        strncmp(input + pos, ".ptr", 4) == 0 && 
+        (isspace(input[pos+4]) || input[pos+4] == '.' || input[pos+4] == 0)) {
+        
         param->attribute = PTX_PARAM_PTR;
         pos += 4;
         pos += skip_whitespace_and_comments(input + pos);
@@ -136,7 +167,10 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
             space_str[space_len] = '\0';
             
             // Parse the state space
-            if (parse_state_space(space_str, &param->state_space)) {
+            ptx_state_space_t ptr_state_space;
+            if (parse_state_space(space_str, &ptr_state_space)) {
+                // For .ptr, we're keeping the PARAM state space but storing which space it points to
+                // in the future we might want to add this to the parameter structure
                 pos += space_len;
                 pos += skip_whitespace_and_comments(input + pos);
             } else {
@@ -147,8 +181,8 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
             free(space_str);
         }
         
-        // Check for alignment
-        if (strncmp(input + pos, ".align", 6) == 0 && (isspace(input[pos+6]) || input[pos+6] == 0)) {
+        // Check for alignment after .ptr if not already set
+        if (!param->has_alignment && strncmp(input + pos, ".align", 6) == 0 && (isspace(input[pos+6]) || input[pos+6] == 0)) {
             pos += 6;
             pos += skip_whitespace_and_comments(input + pos);
             
@@ -163,22 +197,48 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
             param->alignment = (unsigned int)alignment;
             pos = endptr - input;
             pos += skip_whitespace_and_comments(input + pos);
-        } else {
-            param->has_alignment = false;
-            param->alignment = 4; // Default alignment is 4 bytes
         }
-    } else {
-        // No .ptr attribute
-        param->attribute = PTX_PARAM_NONE;
-        param->has_alignment = false;
-        param->state_space = 0; // None/default
     }
     
     // Parse parameter name
     ptx_identifier_t* identifier = NULL;
-    if (!parse_identifier(input + pos, &identifier)) {
+    
+    // Find the end of the identifier (up to whitespace, comma, closing parenthesis, or opening bracket)
+    const char* id_start = input + pos;
+    const char* id_end = id_start;
+    
+    // Skip leading whitespace
+    while (*id_start && isspace(*id_start)) {
+        id_start++;
+    }
+    
+    // Find the end of the identifier
+    id_end = id_start;
+    while (*id_end && !isspace(*id_end) && *id_end != ',' && *id_end != ')' && *id_end != '[') {
+        id_end++;
+    }
+    
+    // Create a temporary string for just the identifier
+    size_t id_len = id_end - id_start;
+    if (id_len == 0) {
         return false;
     }
+    
+    char* id_str = malloc(id_len + 1);
+    if (!id_str) {
+        return false;
+    }
+    
+    strncpy(id_str, id_start, id_len);
+    id_str[id_len] = '\0';
+    
+    // Parse the identifier
+    if (!parse_identifier(id_str, &identifier)) {
+        free(id_str);
+        return false;
+    }
+    
+    free(id_str);
     
     // Copy the identifier - user_defined field contains the name
     if (identifier->tag == PTX_IDENTIFIER_USER_DEFINED) {
@@ -190,17 +250,94 @@ static bool parse_parameter(const char* input, size_t* consumed, ptx_parameter_t
         param->name = strdup(predefined_str);
     }
     
-    // Find end of identifier
-    const char* id_start = input + pos;
-    while (*id_start && !isspace(*id_start) && *id_start != ',' && *id_start != ')') {
-        id_start++;
-    }
-    pos = id_start - input;
+    // Update position to after the identifier
+    pos = id_end - input;
     
     free(identifier);
     
     if (!param->name) {
         return false;
+    }
+    
+    // Check for array dimensions
+    if (input[pos] == '[') {
+        // Parse array dimensions
+        size_t dim_start = pos;
+        
+        // Count dimensions
+        int num_dimensions = 0;
+        const char* counter = input + pos;
+        
+        while (*counter) {
+            if (*counter != '[') {
+                break;
+            }
+            
+            num_dimensions++;
+            counter++;
+            
+            // Skip to closing bracket
+            while (*counter && *counter != ']') {
+                counter++;
+            }
+            if (*counter != ']') {
+                return false; // Missing closing bracket
+            }
+            counter++;
+            
+            // Skip whitespace between dimensions
+            while (*counter && isspace(*counter)) {
+                counter++;
+            }
+        }
+        
+        if (num_dimensions == 0) {
+            // No dimensions found
+            *consumed = pos;
+            return true;
+        }
+        
+        // Allocate array for dimensions (plus one for null terminator)
+        size_t* dimensions = malloc((num_dimensions + 1) * sizeof(size_t));
+        if (!dimensions) {
+            return false;
+        }
+        
+        // Parse dimensions
+        counter = input + pos;
+        for (int i = 0; i < num_dimensions; i++) {
+            if (*counter != '[') {
+                free(dimensions);
+                return false;
+            }
+            counter++;
+            
+            // Parse dimension size
+            char* endptr;
+            dimensions[i] = strtoul(counter, &endptr, 10);
+            
+            if (endptr == counter || *endptr != ']') {
+                free(dimensions);
+                return false;
+            }
+            
+            counter = endptr + 1; // Skip past the closing bracket
+            
+            // Skip whitespace between dimensions
+            while (*counter && isspace(*counter)) {
+                counter++;
+            }
+        }
+        
+        // Add null terminator dimension
+        dimensions[num_dimensions] = 0;
+        
+        // Update position to the end of the array dimensions
+        pos = counter - input;
+        
+        // Store array dimensions in parameter
+        param->has_array_dims = true;
+        param->array_shape = dimensions;
     }
     
     *consumed = pos;
@@ -321,9 +458,27 @@ bool ptx_parse_function_declaration(const char* input, size_t* consumed, ptx_fun
     pos += dir_consumed;
     pos += skip_whitespace_and_comments(input + pos);
     
+    // For device functions (.func), parse return parameter list first
+    if (result->directive == PTX_FUNC_FUNC && input[pos] == '(') {
+        size_t param_consumed = 0;
+        if (!ptx_parse_parameter_list(input + pos, &param_consumed, &result->return_parameters)) {
+            return false;
+        }
+        pos += param_consumed;
+        pos += skip_whitespace_and_comments(input + pos);
+    }
+    
     // Parse function name
     ptx_identifier_t* identifier = NULL;
     if (!parse_identifier(input + pos, &identifier)) {
+        // Free return parameters if they were allocated
+        ptx_parameter_t* current_param = result->return_parameters;
+        while (current_param) {
+            ptx_parameter_t* next = current_param->next;
+            free(current_param->name);
+            free(current_param);
+            current_param = next;
+        }
         return false;
     }
     
@@ -347,16 +502,32 @@ bool ptx_parse_function_declaration(const char* input, size_t* consumed, ptx_fun
     free(identifier);
     
     if (!result->name) {
+        // Free return parameters if they were allocated
+        ptx_parameter_t* current_param = result->return_parameters;
+        while (current_param) {
+            ptx_parameter_t* next = current_param->next;
+            free(current_param->name);
+            free(current_param);
+            current_param = next;
+        }
         return false;
     }
     
     pos += skip_whitespace_and_comments(input + pos);
     
-    // Parse parameter list
+    // Parse input parameter list
     if (input[pos] == '(') {
         size_t param_consumed = 0;
         if (!ptx_parse_parameter_list(input + pos, &param_consumed, &result->parameters)) {
             free(result->name);
+            // Free return parameters if they were allocated
+            ptx_parameter_t* current_param = result->return_parameters;
+            while (current_param) {
+                ptx_parameter_t* next = current_param->next;
+                free(current_param->name);
+                free(current_param);
+                current_param = next;
+            }
             return false;
         }
         pos += param_consumed;
