@@ -30,7 +30,7 @@ This updated checklist outlines the components needed to successfully parse comp
   - **Details**: Handle patterns like `@%p_out_of_bounds bra $RETURN;` where the instruction execution depends on a predicate.
   - **Implementation**: Extend the statement parser to recognize predicate prefixes and associate them with instructions.
 
-- [ ] **parse_complex_memory_operands**
+- [ x ] **parse_complex_memory_operands**
   - **Purpose**: Parse memory access operations with offset addressing.
   - **Details**: Handle patterns like `[%rd_current_addr+4]` which include register plus offset addressing.
   - **Implementation**: Extend operand parsing to recognize and handle address calculations.

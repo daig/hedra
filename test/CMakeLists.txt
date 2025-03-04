@@ -349,4 +349,14 @@ target_include_directories(predicated_statement_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_parse/include
     ${CMAKE_SOURCE_DIR}/ptx_print/include
 )
-install(TARGETS predicated_statement_test DESTINATION bin) 
+install(TARGETS predicated_statement_test DESTINATION bin)
+
+# New test for complex memory operand parsing and printing
+add_executable(complex_memory_operand_test ptx_parse/test_complex_memory_operand_parse.c)
+target_link_libraries(complex_memory_operand_test ptx_parse ptx_print ptx_ast)
+target_include_directories(complex_memory_operand_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS complex_memory_operand_test DESTINATION bin) 

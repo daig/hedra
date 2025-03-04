@@ -25,6 +25,8 @@ set(SOURCES
     src/ptx_type_graphics.c
     src/ptx_function.c
     src/ptx_code_block.c
+    src/ptx_instruction.c
+    src/ptx_memory_operand.c
 )
 
 # Header files
@@ -52,6 +54,7 @@ set(HEADERS
     include/ptx_ast/ptx_type_packed_float.h
     include/ptx_ast/ptx_function.h
     include/ptx_ast/ptx_code_block.h
+    include/ptx_ast/ptx_memory_operand.h
 )
 
 # Create library

@@ -1,4 +1,5 @@
 #include <ptx_parse/ptx_instruction_parse.h>
+#include <ptx_parse/ptx_memory_operand_parse.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -192,6 +193,203 @@ bool parse_predicate(const char* str, ptx_predicate_t** predicate) {
 }
 
 /**
+ * Parse instruction modifiers from a string
+ */
+bool parse_instruction_modifiers(const char* str, ptx_instruction_t* instruction, int* chars_read) {
+    if (!str || !instruction || !chars_read) {
+        return false;
+    }
+    
+    // Initialize the number of characters read
+    *chars_read = 0;
+    
+    // Skip leading whitespace
+    const char* current = str;
+    while (*current && isspace(*current)) {
+        current++;
+    }
+    
+    // Check if we have modifiers
+    while (*current == '.') {
+        // Move past the dot
+        current++;
+        
+        // Extract the modifier
+        const char* modifier_start = current;
+        while (*current && !isspace(*current) && *current != '.' && *current != ',') {
+            current++;
+        }
+        
+        // Create a copy of the modifier
+        size_t modifier_length = current - modifier_start;
+        char* modifier = (char*)malloc(modifier_length + 1);
+        if (!modifier) {
+            return false; // Memory allocation failed
+        }
+        
+        strncpy(modifier, modifier_start, modifier_length);
+        modifier[modifier_length] = '\0';
+        
+        // Add the modifier to the instruction
+        if (!add_instruction_modifier(instruction, modifier)) {
+            free(modifier);
+            return false;
+        }
+        
+        // Free the temporary modifier
+        free(modifier);
+        
+        // Skip whitespace
+        while (*current && isspace(*current)) {
+            current++;
+        }
+    }
+    
+    // Update the number of characters read
+    *chars_read = current - str;
+    
+    return true;
+}
+
+/**
+ * Parse instruction operands from a string
+ */
+bool parse_instruction_operands(const char* str, ptx_instruction_t* instruction, int* chars_read) {
+    if (!str || !instruction || !chars_read) {
+        return false;
+    }
+    
+    // Initialize the number of characters read
+    *chars_read = 0;
+    
+    // Skip leading whitespace
+    const char* current = str;
+    while (*current && isspace(*current)) {
+        current++;
+    }
+    
+    // Check if we have operands
+    if (!*current) {
+        return true; // No operands
+    }
+    
+    // Parse the destination operand (if any)
+    const char* dest_start = current;
+    while (*current && *current != ',' && *current != ';' && !isspace(*current)) {
+        current++;
+    }
+    
+    // Create a copy of the destination operand
+    size_t dest_length = current - dest_start;
+    if (dest_length > 0) {
+        char* dest = (char*)malloc(dest_length + 1);
+        if (!dest) {
+            return false; // Memory allocation failed
+        }
+        
+        strncpy(dest, dest_start, dest_length);
+        dest[dest_length] = '\0';
+        
+        // Set the destination operand
+        if (!set_instruction_dest(instruction, dest)) {
+            free(dest);
+            return false;
+        }
+        
+        // Free the temporary destination
+        free(dest);
+    }
+    
+    // Skip whitespace
+    while (*current && isspace(*current)) {
+        current++;
+    }
+    
+    // Check if we have a comma
+    if (*current == ',') {
+        // Move past the comma
+        current++;
+        
+        // Skip whitespace
+        while (*current && isspace(*current)) {
+            current++;
+        }
+        
+        // Parse the source operands
+        while (*current && *current != ';') {
+            // Check if we have a memory operand
+            if (*current == '[' || (isalpha(*current) && strchr(current, '['))) {
+                // Parse the memory operand
+                ptx_memory_operand_t* memory_operand = NULL;
+                int mem_chars_read = 0;
+                if (!parse_memory_operand(current, &memory_operand, &mem_chars_read)) {
+                    return false;
+                }
+                
+                // Add the memory operand to the instruction
+                if (!add_memory_operand(instruction, memory_operand)) {
+                    free_memory_operand(memory_operand);
+                    return false;
+                }
+                
+                // Update the current position
+                current += mem_chars_read;
+            } else {
+                // Parse the register operand
+                const char* reg_start = current;
+                while (*current && *current != ',' && *current != ';' && !isspace(*current)) {
+                    current++;
+                }
+                
+                // Create a copy of the register operand
+                size_t reg_length = current - reg_start;
+                if (reg_length > 0) {
+                    char* reg = (char*)malloc(reg_length + 1);
+                    if (!reg) {
+                        return false; // Memory allocation failed
+                    }
+                    
+                    strncpy(reg, reg_start, reg_length);
+                    reg[reg_length] = '\0';
+                    
+                    // Add the register operand to the instruction
+                    if (!add_register_operand(instruction, reg)) {
+                        free(reg);
+                        return false;
+                    }
+                    
+                    // Free the temporary register
+                    free(reg);
+                }
+            }
+            
+            // Skip whitespace
+            while (*current && isspace(*current)) {
+                current++;
+            }
+            
+            // Check if we have a comma
+            if (*current == ',') {
+                // Move past the comma
+                current++;
+                
+                // Skip whitespace
+                while (*current && isspace(*current)) {
+                    current++;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    
+    // Update the number of characters read
+    *chars_read = current - str;
+    
+    return true;
+}
+
+/**
  * Parse a full instruction with optional predicate
  */
 bool parse_full_instruction(const char* str, ptx_instruction_t** instruction) {
@@ -211,14 +409,21 @@ bool parse_full_instruction(const char* str, ptx_instruction_t** instruction) {
         return false; // Memory allocation failed
     }
 
-    // Initialize with NULL predicate
+    // Initialize the instruction
     (*instruction)->predicate = NULL;
+    (*instruction)->modifiers = NULL;
+    (*instruction)->dest_operand = NULL;
+    (*instruction)->num_operands = 0;
+    for (int i = 0; i < MAX_INSTRUCTION_OPERANDS; i++) {
+        (*instruction)->reg_operands[i] = NULL;
+        (*instruction)->is_mem_operand[i] = false;
+    }
 
     // Check if the instruction starts with a predicate (@)
     if (*current == '@') {
         // Parse the predicate
         if (!parse_predicate(current, &(*instruction)->predicate)) {
-            free(*instruction);
+            free_instruction(*instruction);
             *instruction = NULL;
             return false;
         }
@@ -244,11 +449,7 @@ bool parse_full_instruction(const char* str, ptx_instruction_t** instruction) {
     size_t instr_length = current - instr_start;
     char* instr_name = (char*)malloc(instr_length + 1);
     if (!instr_name) {
-        if ((*instruction)->predicate) {
-            free((*instruction)->predicate->name);
-            free((*instruction)->predicate);
-        }
-        free(*instruction);
+        free_instruction(*instruction);
         *instruction = NULL;
         return false; // Memory allocation failed
     }
@@ -257,15 +458,31 @@ bool parse_full_instruction(const char* str, ptx_instruction_t** instruction) {
     instr_name[instr_length] = '\0';
 
     // Parse the instruction tag
-    bool instruction_parsed = parse_instruction_tag(instr_name, &(*instruction)->tag);
-    free(instr_name); // We don't need this anymore
+    if (!parse_instruction_tag(instr_name, &(*instruction)->tag)) {
+        free(instr_name);
+        free_instruction(*instruction);
+        *instruction = NULL;
+        return false;
+    }
 
-    if (!instruction_parsed) {
-        if ((*instruction)->predicate) {
-            free((*instruction)->predicate->name);
-            free((*instruction)->predicate);
-        }
-        free(*instruction);
+    // Free the temporary instruction name
+    free(instr_name);
+
+    // Parse modifiers
+    int modifier_chars_read = 0;
+    if (!parse_instruction_modifiers(current, *instruction, &modifier_chars_read)) {
+        free_instruction(*instruction);
+        *instruction = NULL;
+        return false;
+    }
+    
+    // Update the current position
+    current += modifier_chars_read;
+    
+    // Parse operands
+    int operand_chars_read = 0;
+    if (!parse_instruction_operands(current, *instruction, &operand_chars_read)) {
+        free_instruction(*instruction);
         *instruction = NULL;
         return false;
     }

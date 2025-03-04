@@ -37,4 +37,24 @@ bool parse_predicate(const char* str, ptx_predicate_t** predicate);
  * @param instruction Pointer to ptx_instruction_t* where the allocated result will be stored
  * @return true if successful, false if parsing fails
  */
-bool parse_full_instruction(const char* str, ptx_instruction_t** instruction); 
+bool parse_full_instruction(const char* str, ptx_instruction_t** instruction);
+
+/**
+ * @brief Parse instruction modifiers from a string
+ * 
+ * @param str The string to parse
+ * @param instruction The instruction to add modifiers to
+ * @param chars_read Pointer to store the number of characters read
+ * @return true if parsing was successful, false otherwise
+ */
+bool parse_instruction_modifiers(const char* str, ptx_instruction_t* instruction, int* chars_read);
+
+/**
+ * @brief Parse instruction operands from a string
+ * 
+ * @param str The string to parse
+ * @param instruction The instruction to add operands to
+ * @param chars_read Pointer to store the number of characters read
+ * @return true if parsing was successful, false otherwise
+ */
+bool parse_instruction_operands(const char* str, ptx_instruction_t* instruction, int* chars_read); 
