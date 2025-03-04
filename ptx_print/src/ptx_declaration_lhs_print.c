@@ -84,6 +84,13 @@ bool print_declaration_lhs_to_file(FILE* file, const ptx_declaration_type_t* lhs
         if (fprintf(file, " %s", lhs->name) < 0) {
             return false;
         }
+        
+        // Print parameterization if present
+        if (lhs->parameterization > 0) {
+            if (fprintf(file, "<%d>", lhs->parameterization) < 0) {
+                return false;
+            }
+        }
     }
 
     // Print array dimensions (if applicable)

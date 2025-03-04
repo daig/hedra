@@ -37,6 +37,7 @@ typedef struct ptx_declaration_type {
     ptx_type_t type;
     ptx_shape_t shape;
     char* name;
+    int parameterization; // parameterized suffix. 0 means no parameterization.
     bool has_initializer;
     unsigned int alignment;  // Alignment in bytes, 0 means no alignment specified
 } ptx_declaration_type_t;

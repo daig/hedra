@@ -397,30 +397,126 @@ void test_alignment_parsing() {
     printf("Invalid alignment test passed!\n\n");
 }
 
+/**
+ * Test parameterized variable declarations
+ */
+void test_parameterized_variables() {
+    printf("Testing parameterized variable declarations...\n");
+    
+    // Test a basic parameterized variable
+    const char* test_str = ".reg .b32 %r<100>";
+    ptx_declaration_type_t lhs = {0};
+    
+    bool result = parse_declaration_lhs(test_str, &lhs);
+    assert(result && "Failed to parse parameterized variable declaration");
+    
+    assert(lhs.statespace == PTX_STATE_REG);
+    assert(lhs.type == PTX_TYPE_B32);
+    assert(lhs.shape.kind == SHAPE_SCALAR);
+    assert(lhs.parameterization == 100);
+    assert(strcmp(lhs.name, "%r") == 0);
+    
+    // Test with different state space
+    const char* test_str2 = ".shared .u32 %shared<64>";
+    ptx_declaration_type_t lhs2 = {0};
+    
+    result = parse_declaration_lhs(test_str2, &lhs2);
+    assert(result && "Failed to parse parameterized shared variable declaration");
+    
+    assert(lhs2.statespace == PTX_STATE_SHARED);
+    assert(lhs2.type == PTX_TYPE_U32);
+    assert(lhs2.shape.kind == SHAPE_SCALAR);
+    assert(lhs2.parameterization == 64);
+    assert(strcmp(lhs2.name, "%shared") == 0);
+    
+    // Test with alignment
+    const char* test_str3 = ".global .align 4 .f32 %g<16>";
+    ptx_declaration_type_t lhs3 = {0};
+    
+    result = parse_declaration_lhs(test_str3, &lhs3);
+    assert(result && "Failed to parse parameterized global variable with alignment");
+    
+    assert(lhs3.statespace == PTX_STATE_GLOBAL);
+    assert(lhs3.type == PTX_TYPE_F32);
+    assert(lhs3.shape.kind == SHAPE_SCALAR);
+    assert(lhs3.parameterization == 16);
+    assert(lhs3.alignment == 4);
+    assert(strcmp(lhs3.name, "%g") == 0);
+    
+    // Test with vector type
+    const char* test_str4 = ".reg .v2 .f32 %v<32>";
+    ptx_declaration_type_t lhs4 = {0};
+    
+    result = parse_declaration_lhs(test_str4, &lhs4);
+    assert(result && "Failed to parse parameterized vector variable");
+    
+    assert(lhs4.statespace == PTX_STATE_REG);
+    assert(lhs4.type == PTX_TYPE_F32);
+    assert(lhs4.shape.kind == SHAPE_VECTOR);
+    assert(lhs4.shape.vector_size == VECTOR_SIZE_V2);
+    assert(lhs4.parameterization == 32);
+    assert(strcmp(lhs4.name, "%v") == 0);
+    
+    // Test invalid: Array variables can't use parameterization
+    const char* invalid_test_str = ".reg .b32 %arr<10>[5]";
+    ptx_declaration_type_t lhs5 = {0};
+    
+    result = parse_declaration_lhs(invalid_test_str, &lhs5);
+    assert(!result && "Array variable shouldn't allow parameterization");
+    
+    // Clean up
+    cleanup_decl_lhs(&lhs);
+    cleanup_decl_lhs(&lhs2);
+    cleanup_decl_lhs(&lhs3);
+    cleanup_decl_lhs(&lhs4);
+    
+    printf("Parameterized variable declaration tests passed!\n\n");
+}
+
 int main() {
     printf("PTX Declaration LHS Parse-Print Roundtrip Tests\n");
     printf("=============================================\n\n");
     
+    // Test basic parsing
     test_basic_parsing();
+    
+    // Test parse-print roundtrip
+    test_parse_print_roundtrip(".reg .b32 %r0");
+    test_parse_print_roundtrip(".global .u32 %g");
+    test_parse_print_roundtrip(".const .f32 %fc");
+    test_parse_print_roundtrip(".shared .b64 %s");
+    test_parse_print_roundtrip(".local .u16 %l");
+    test_parse_print_roundtrip(".param .s32 %p");
+    
+    // Test vectors
+    test_parse_print_roundtrip(".reg .v2 .f32 %v2");
+    test_parse_print_roundtrip(".reg .v4 .f32 %v4");
+    
+    // Test arrays
+    test_parse_print_roundtrip(".global .u32 %arr[10]");
+    test_parse_print_roundtrip(".local .f32 %multi[2][3][4]");
+    
+    // Test alignment
+    test_parse_print_roundtrip(".global .align 4 .u32 %aligned");
+    test_parse_print_roundtrip(".global .align 8 .f64 %aligned8");
+    
+    // Test alignment with vectors and arrays
+    test_parse_print_roundtrip(".global .align 16 .v4 .f32 %aligned_vec");
+    test_parse_print_roundtrip(".global .align 8 .u32 %aligned_arr[10]");
+    
+    // Test parameterized variables
+    test_parameterized_variables();
+    
+    // Test parameterized variables roundtrip
+    test_parse_print_roundtrip(".reg .b32 %r<100>");
+    test_parse_print_roundtrip(".shared .u32 %shared<64>");
+    test_parse_print_roundtrip(".global .align 4 .f32 %g<16>");
+    test_parse_print_roundtrip(".reg .v2 .f32 %v<32>");
+    
+    // Test invalid inputs
     test_invalid_inputs();
     
-    // Test roundtrip for various declarations
-    test_parse_print_roundtrip(".global .u32 loc");
-    test_parse_print_roundtrip(".reg .s32 i");
-    test_parse_print_roundtrip(".const .f32 bias");
-    test_parse_print_roundtrip(".shared .u8 bg");
-    test_parse_print_roundtrip(".reg .v4 .f32 accel");
-    test_parse_print_roundtrip(".global .v2 .u16 uv");
-    test_parse_print_roundtrip(".shared .v4 .b8 v");
-    test_parse_print_roundtrip(".local .u16 kernel[19][19]");
-    test_parse_print_roundtrip(".shared .u8 mailbox[128]");
-    test_parse_print_roundtrip(".global .u32 index[8]");
-    
-    // Test with alignment
-    test_parse_print_roundtrip(".const .align 4 .b8 bar[8]");
-    test_parse_print_roundtrip(".global .align 8 .u32 aligned_var");
-    
-    // Test complex multi-dimensional arrays
+    // Test complex array parsing
     test_complex_arrays();
     
     // Test alignment parsing

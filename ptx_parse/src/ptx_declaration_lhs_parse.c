@@ -49,14 +49,15 @@ static bool parse_identifier(const char** str_ptr, char** name) {
     // Skip whitespace
     str = skip_whitespace(str);
     
-    // First character must be a letter or underscore
-    if (!isalpha(*str) && *str != '_') {
+    // First character must be a letter, underscore, or %
+    if (!isalpha(*str) && *str != '_' && *str != '%') {
         return false;
     }
     
     // Find end of identifier
     const char* start = str;
-    while (isalnum(*str) || *str == '_' || *str == '$') {
+    
+    while (isalnum(*str) || *str == '_' || *str == '$' || *str == '%') {
         str++;
     }
     
@@ -323,12 +324,35 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
         return false;
     }
     
+    // Check for parameterization
+    current = skip_whitespace(current);
+    if (*current == '<') {
+        const char* param_start = current + 1;
+        char* param_end;
+        
+        // Attempt to parse an integer
+        long param_value = strtol(param_start, &param_end, 10);
+        
+        // Ensure it's a valid positive number followed by '>'
+        if (param_start != param_end && *param_end == '>' && param_value > 0) {
+            lhs->parameterization = (int)param_value;
+            current = param_end + 1;  // Move past the '>'
+        }
+    }
+    
     // Check for array dimensions
     current = skip_whitespace(current);
     
     if (*current == '[') {
         if (lhs->shape.kind == SHAPE_VECTOR) {
             // Can't have both vector and array
+            free(lhs->name);
+            lhs->name = NULL;
+            return false;
+        }
+        
+        // According to the spec, array variables cannot be declared using parameterization
+        if (lhs->parameterization > 0) {
             free(lhs->name);
             lhs->name = NULL;
             return false;
@@ -347,6 +371,9 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
     
     // We're not handling initializer parsing in this function
     lhs->has_initializer = false;
+    
+    // According to the spec, parameterized variables cannot have initializers,
+    // but we'll let the caller handle that restriction
     
     return true;
 } 
