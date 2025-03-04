@@ -329,4 +329,24 @@ target_include_directories(function_print_test PRIVATE
     ${CMAKE_SOURCE_DIR}/ptx_print/include
     ${CMAKE_SOURCE_DIR}/prelude/include
 )
-install(TARGETS function_print_test DESTINATION bin) 
+install(TARGETS function_print_test DESTINATION bin)
+
+# New test for predicated instruction parsing and printing
+add_executable(predicated_instruction_test ptx_parse/test_predicated_instruction_parse.c)
+target_link_libraries(predicated_instruction_test ptx_parse ptx_print)
+target_include_directories(predicated_instruction_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS predicated_instruction_test DESTINATION bin)
+
+# New test for predicated statement parsing and printing
+add_executable(predicated_statement_test ptx_parse/test_predicated_statement_parse.c)
+target_link_libraries(predicated_statement_test ptx_parse ptx_print)
+target_include_directories(predicated_statement_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS predicated_statement_test DESTINATION bin) 

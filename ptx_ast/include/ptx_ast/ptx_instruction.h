@@ -1,6 +1,7 @@
 #pragma once
+#include <stdbool.h>
 
-typedef enum ptx_instruction { 
+typedef enum ptx_instruction_tag { 
     ABS,
     CVTA,
     MEMBAR,
@@ -135,5 +136,18 @@ typedef enum ptx_instruction {
     SETMAXNREG,
     VABSDIFF2
 
+} ptx_instruction_tag;
+
+// Structure to represent a predicate
+typedef struct ptx_predicate_t {
+    char* name;  // The name of the predicate register (e.g., "%p_out_of_bounds")
+    bool negated; // Whether the predicate is negated (e.g., "!%p_out_of_bounds")
+} ptx_predicate_t;
+
+// Structure to represent a full instruction with optional predicate
+typedef struct ptx_instruction_t {
+    ptx_instruction_tag tag;     // The type of instruction
+    ptx_predicate_t* predicate;  // Optional predicate (NULL if not predicated)
+    // TODO: Add fields for modifiers and operands in future enhancements
 } ptx_instruction_t;
 

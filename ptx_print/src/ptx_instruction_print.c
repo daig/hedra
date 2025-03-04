@@ -5,7 +5,7 @@
 // This is the inverse of the mapping in ptx_instruction_parse.c
 typedef struct {
     const char* name;
-    ptx_instruction_t instruction;
+    ptx_instruction_tag instruction;
 } instruction_map_entry;
 
 // Array of instruction mappings
@@ -144,21 +144,84 @@ static const instruction_map_entry instruction_map[] = {
 
 static const size_t instruction_map_size = sizeof(instruction_map) / sizeof(instruction_map[0]);
 
-const char* get_instruction_string(ptx_instruction_t instruction) {
+/**
+ * Gets the string representation of a PTX instruction tag
+ */
+const char* get_instruction_string(ptx_instruction_tag tag) {
     for (size_t i = 0; i < instruction_map_size; i++) {
-        if (instruction_map[i].instruction == instruction) {
+        if (instruction_map[i].instruction == tag) {
             return instruction_map[i].name;
         }
     }
     return NULL;  // Instruction not found
 }
 
-bool print_instruction_to_file(FILE* file, ptx_instruction_t instruction) {
+/**
+ * Prints a PTX predicate to a file stream
+ */
+bool print_predicate_to_file(FILE* file, const ptx_predicate_t* predicate) {
+    if (!file || !predicate || !predicate->name) {
+        return false;
+    }
+    
+    fprintf(file, "@");
+    if (predicate->negated) {
+        fprintf(file, "!");
+    }
+    fprintf(file, "%s ", predicate->name);
+    return true;
+}
+
+/**
+ * Prints a PTX predicate to a string buffer
+ */
+int print_predicate_to_buffer(char* buffer, size_t buffer_size, const ptx_predicate_t* predicate) {
+    if (!buffer || buffer_size == 0 || !predicate || !predicate->name) {
+        return -1;
+    }
+    
+    char tmp[buffer_size];
+    int chars = 0;
+    
+    // Start with @
+    tmp[chars++] = '@';
+    
+    // Add ! if negated
+    if (predicate->negated) {
+        tmp[chars++] = '!';
+    }
+    
+    // Add the predicate name
+    int name_len = snprintf(tmp + chars, buffer_size - chars, "%s ", predicate->name);
+    if (name_len < 0 || name_len >= buffer_size - chars) {
+        return -1;
+    }
+    chars += name_len;
+    
+    // Copy to output buffer
+    strncpy(buffer, tmp, chars);
+    buffer[chars] = '\0';
+    
+    return chars;
+}
+
+/**
+ * Prints a PTX instruction to a file stream
+ */
+bool print_instruction_to_file(FILE* file, const ptx_instruction_t instruction) {
     if (!file) {
         return false;
     }
     
-    const char* instruction_str = get_instruction_string(instruction);
+    // Print predicate if present
+    if (instruction.predicate) {
+        if (!print_predicate_to_file(file, instruction.predicate)) {
+            return false;
+        }
+    }
+    
+    // Get and print the instruction name
+    const char* instruction_str = get_instruction_string(instruction.tag);
     if (!instruction_str) {
         return false;
     }
@@ -168,16 +231,37 @@ bool print_instruction_to_file(FILE* file, ptx_instruction_t instruction) {
     return true;
 }
 
-int print_instruction_to_buffer(char* buffer, size_t buffer_size, ptx_instruction_t instruction) {
+/**
+ * Prints a PTX instruction to a string buffer
+ */
+int print_instruction_to_buffer(char* buffer, size_t buffer_size, const ptx_instruction_t instruction) {
     if (!buffer || buffer_size == 0) {
         return -1;
     }
     
-    const char* instruction_str = get_instruction_string(instruction);
+    int total_chars = 0;
+    
+    // Print predicate if present
+    if (instruction.predicate) {
+        int pred_chars = print_predicate_to_buffer(buffer, buffer_size, instruction.predicate);
+        if (pred_chars < 0) {
+            return -1;
+        }
+        total_chars += pred_chars;
+    }
+    
+    // Get the instruction string
+    const char* instruction_str = get_instruction_string(instruction.tag);
     if (!instruction_str) {
         return -1;
     }
     
-    // Print the instruction
-    return snprintf(buffer, buffer_size, "%s", instruction_str);
+    // Print the instruction name
+    int name_chars = snprintf(buffer + total_chars, buffer_size - total_chars, "%s", instruction_str);
+    if (name_chars < 0 || name_chars >= buffer_size - total_chars) {
+        return -1;
+    }
+    total_chars += name_chars;
+    
+    return total_chars;
 } 

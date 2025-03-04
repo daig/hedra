@@ -18,14 +18,14 @@ This updated checklist outlines the components needed to successfully parse comp
   - **Details**: Handle parameters like `.param .u64 grid_param`, which specify state space, type, and name.
   - **Implementation**: Extend current declaration parser or create dedicated parameter parser that reuses existing type and state space parsers.
 
-- [ ] **parse_code_block**
+- [ x ] **parse_code_block**
   - **Purpose**: Parse complete code blocks enclosed in braces, including all contained statements.
   - **Details**: Handle entire function bodies including nested blocks, labels, and control flow.
   - **Implementation**: Create a parser that collects multiple statements between `{` and `}` markers.
 
 ## Enhanced Statement Parsing
 
-- [ ] **parse_predicated_instruction**
+- [ x ] **parse_predicated_instruction**
   - **Purpose**: Parse instructions that are conditionally executed based on a predicate.
   - **Details**: Handle patterns like `@%p_out_of_bounds bra $RETURN;` where the instruction execution depends on a predicate.
   - **Implementation**: Extend the statement parser to recognize predicate prefixes and associate them with instructions.
@@ -52,7 +52,7 @@ This updated checklist outlines the components needed to successfully parse comp
   - **Details**: Include fields for state space, type, and name, possibly reusing existing declaration structures.
   - **Implementation**: Add this to the function AST structure or create a separate header.
 
-- [ ] **ptx_code_block_t**
+- [ x ] **ptx_code_block_t**
   - **Purpose**: Define an AST structure for code blocks with multiple statements.
   - **Details**: Include a list/array of statements contained within the block.
   - **Implementation**: Create this structure to represent function bodies and other code blocks.
@@ -75,7 +75,7 @@ This updated checklist outlines the components needed to successfully parse comp
 2. Implement the function declaration parser to handle the header portion
 3. Implement the parameter list parser for function arguments
 4. Implement the code block parser to collect statements
-5. Enhance statement parsing to handle predicates and complex operands
+5. Implement the enhanced statement parsing to handle predicates and complex operands
 6. Integrate all components into a complete function parser
 7. Create the pretty-printer for testing and verification
 

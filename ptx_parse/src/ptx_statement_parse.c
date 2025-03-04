@@ -105,34 +105,17 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
             return false;
         }
     } else {
-        // Try to parse an instruction
-        // First, extract just the instruction name (up to first space, period, or semicolon)
-        const char* instr_start = current;
-        while (*current && !isspace(*current) && *current != '.' && *current != ';') {
-            current++;
-        }
-        
-        // Create a temporary buffer for the instruction name
-        size_t instr_length = current - instr_start;
-        char* instr_name = (char*)malloc(instr_length + 1);
-        if (!instr_name) {
-            free((*statement)->original_text);
-            free(*statement);
-            *statement = NULL;
-            return false; // Memory allocation failed
-        }
-        
-        strncpy(instr_name, instr_start, instr_length);
-        instr_name[instr_length] = '\0';
-        
-        // Parse the instruction
-        ptx_instruction_t instruction;
-        bool instruction_parsed = parse_instruction(instr_name, &instruction);
-        free(instr_name); // We don't need this anymore
+        // Try to parse an instruction with possible predicate
+        ptx_instruction_t* instruction = NULL;
+        bool instruction_parsed = parse_full_instruction(current, &instruction);
         
         if (instruction_parsed) {
             (*statement)->tag = INSTRUCTION;
-            (*statement)->instruction = instruction;
+            (*statement)->instruction = *instruction;
+            
+            // Free the original instruction structure as we've copied its contents
+            // Note: We don't free the internal predicate as it's been copied by value
+            free(instruction);
             return true;
         } else {
             // Failed to parse the instruction
