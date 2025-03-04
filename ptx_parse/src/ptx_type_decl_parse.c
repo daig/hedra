@@ -74,6 +74,8 @@ void free_ptx_decl(ptx_decl_t* decl) {
         decl->type.shape.array_shape = NULL;
     }
     
+    // No need to free attribute data as it doesn't contain any dynamically allocated memory
+    
     // Free initializer if present
     if (decl->type.has_initializer) {
         if ((decl->type.shape.kind == SHAPE_ARRAY || decl->type.shape.kind == SHAPE_VECTOR) && decl->array) {

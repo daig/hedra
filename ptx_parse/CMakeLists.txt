@@ -27,6 +27,7 @@ set(SOURCES
     src/ptx_declaration_lhs_parse.c
     src/ptx_initializer_array_parse.c
     src/ptx_type_decl_parse.c
+    src/ptx_attribute_parse.c
 )
 
 # Header files
@@ -47,6 +48,7 @@ set(HEADERS
     include/ptx_parse/ptx_initializer_value_parse.h
     include/ptx_parse/ptx_initializer_array_parse.h
     include/ptx_parse/ptx_type_decl_parse.h
+    include/ptx_parse/ptx_attribute_parse.h
 )
 
 # Create library

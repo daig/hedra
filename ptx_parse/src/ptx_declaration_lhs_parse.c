@@ -1,6 +1,7 @@
 #include <ptx_parse/ptx_declaration_lhs_parse.h>
 #include <ptx_parse/ptx_statespace_parse.h>
 #include <ptx_parse/ptx_type_parse.h>
+#include <ptx_parse/ptx_attribute_parse.h>
 #include <prelude/ptx_array_shape.h>
 #include <ctype.h>
 #include <string.h>
@@ -258,6 +259,26 @@ bool parse_declaration_lhs(const char* str, ptx_declaration_type_t* lhs) {
     
     // Make a copy of the original string for parsing
     const char* current = str;
+    
+    // Check for attribute directive
+    if (strncmp(current, ".attribute", 10) == 0) {
+        const char* attr_end = NULL;
+        if (!parse_attribute(current, &lhs->attribute, &attr_end)) {
+            return false;
+        }
+        
+        lhs->has_attribute = true;
+        
+        // Move past the attribute
+        current = attr_end;
+        
+        // Skip whitespace after attribute
+        current = skip_whitespace(current);
+        
+        if (!*current) {
+            return false; // Unexpected end of string
+        }
+    }
     
     // Parse state space and get the updated position
     const char* state_space_end = NULL;

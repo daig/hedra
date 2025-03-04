@@ -2,6 +2,7 @@
 #include "ptx_type.h"
 #include "ptx_statespace.h"
 #include <prelude/ptx_array_shape.h>
+#include <stdint.h>
 
 
 /**
@@ -30,6 +31,28 @@ typedef struct ptx_shape {
 } ptx_shape_t;
 
 /**
+ * Enumeration of attribute tags supported in PTX.
+ */
+typedef enum ptx_attribute_tag {
+    PTX_ATTR_MANAGED,  // Variable will be allocated in unified virtual memory
+    PTX_ATTR_UNIFIED   // Variable/function has same memory address on host and devices
+} ptx_attribute_tag_t;
+
+/**
+ * Structure representing a PTX attribute.
+ */
+typedef struct ptx_attribute {
+    ptx_attribute_tag_t tag;
+    union {
+        struct {  // For PTX_ATTR_UNIFIED
+            uint64_t uuid1;  // Upper 64 bits of unique identifier
+            uint64_t uuid2;  // Lower 64 bits of unique identifier
+        } unified;
+        // PTX_ATTR_MANAGED has no additional data
+    };
+} ptx_attribute_t;
+
+/**
  * Structure representing the left-hand side of a PTX declaration.
  */
 typedef struct ptx_declaration_type {
@@ -40,5 +63,7 @@ typedef struct ptx_declaration_type {
     int parameterization; // parameterized suffix. 0 means no parameterization.
     bool has_initializer;
     unsigned int alignment;  // Alignment in bytes, 0 means no alignment specified
+    bool has_attribute;      // Whether this declaration has an attribute
+    ptx_attribute_t attribute; // The attribute if has_attribute is true
 } ptx_declaration_type_t;
 

@@ -20,6 +20,7 @@ set(SOURCES
     src/ptx_initializer_array_print.c
     src/ptx_statespace_print.c
     src/ptx_declaration_lhs_print.c
+    src/ptx_attribute_print.c
 )
 
 # List of header files
@@ -39,6 +40,7 @@ set(HEADERS
     include/ptx_print/ptx_initializer_array_print.h
     include/ptx_print/ptx_statespace_print.h
     include/ptx_print/ptx_declaration_lhs_print.h
+    include/ptx_print/ptx_attribute_print.h
 )
 
 # Create the library

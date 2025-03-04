@@ -1,0 +1,8 @@
+add_executable(test_declaration_lhs_parse test_declaration_lhs_parse.c)
+target_link_libraries(test_declaration_lhs_parse ptx_parse ptx_print ptx_ast prelude)
+
+add_executable(test_attribute_parse test_attribute_parse.c)
+target_link_libraries(test_attribute_parse ptx_parse ptx_print ptx_ast prelude)
+
+add_executable(test_declaration_with_attribute test_declaration_with_attribute.c)
+target_link_libraries(test_declaration_with_attribute ptx_parse ptx_print ptx_ast prelude) 

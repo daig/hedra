@@ -1,6 +1,8 @@
 #include <ptx_print/ptx_declaration_lhs_print.h>
 #include <ptx_print/ptx_statespace_print.h>
 #include <ptx_print/ptx_type_print.h>
+#include <ptx_print/ptx_attribute_print.h>
+#include <prelude/ptx_array_shape.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -47,6 +49,17 @@ static bool print_array_dimensions_to_file(FILE* file, ptx_array_shape_t shape) 
 bool print_declaration_lhs_to_file(FILE* file, const ptx_declaration_type_t* lhs) {
     if (!file || !lhs) {
         return false;
+    }
+
+    // Print attribute if present
+    if (lhs->has_attribute) {
+        char attr_buffer[128]; // Buffer for attribute
+        if (print_attribute_to_buffer(attr_buffer, sizeof(attr_buffer), &lhs->attribute) < 0) {
+            return false;
+        }
+        if (fprintf(file, "%s ", attr_buffer) < 0) {
+            return false;
+        }
     }
 
     // Print state space
