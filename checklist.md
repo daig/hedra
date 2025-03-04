@@ -35,7 +35,7 @@ This updated checklist outlines the components needed to successfully parse comp
   - **Details**: Handle patterns like `[%rd_current_addr+4]` which include register plus offset addressing.
   - **Implementation**: Extend operand parsing to recognize and handle address calculations.
 
-- [ ] **parse_specialized_float_constants**
+- [ x ] **parse_specialized_float_constants**
   - **Purpose**: Parse specialized floating-point constant formats used in PTX.
   - **Details**: Handle hexadecimal float constants like `0f3ECCCCCD` (0.4 in IEEE 754 format).
   - **Implementation**: Extend the constant parser to recognize and convert these specialized formats.

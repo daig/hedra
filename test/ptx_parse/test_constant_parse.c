@@ -34,6 +34,31 @@ void test_float_parsing() {
     assert(parse_float_literal("123.456", &constant) == true);
     assert(constant.type == PTX_CONST_FLOAT);
     assert(constant.f64_val > 123.455 && constant.f64_val < 123.457);
+    assert(constant.original_str == NULL);
+    
+    // Test scientific notation
+    assert(parse_float_literal("1.23e45", &constant) == true);
+    assert(constant.type == PTX_CONST_FLOAT_SCIENTIFIC);
+    assert(constant.f64_val > 1.22e45 && constant.f64_val < 1.24e45);
+    assert(constant.original_str != NULL);
+    assert(strcmp(constant.original_str, "1.23e45") == 0);
+    free(constant.original_str);
+    
+    // Test IEEE 754 single-precision hex format
+    assert(parse_float_literal("0F3f800000", &constant) == true);
+    assert(constant.type == PTX_CONST_FLOAT_IEEE_HEX_F32);
+    assert(constant.f32_val > 0.999 && constant.f32_val < 1.001); // Should be exactly 1.0
+    assert(constant.original_str != NULL);
+    assert(strcmp(constant.original_str, "0F3f800000") == 0);
+    free(constant.original_str);
+    
+    // Test IEEE 754 double-precision hex format
+    assert(parse_float_literal("0D3ff0000000000000", &constant) == true);
+    assert(constant.type == PTX_CONST_FLOAT_IEEE_HEX_F64);
+    assert(constant.f64_val > 0.999 && constant.f64_val < 1.001); // Should be exactly 1.0
+    assert(constant.original_str != NULL);
+    assert(strcmp(constant.original_str, "0D3ff0000000000000") == 0);
+    free(constant.original_str);
     
     printf("Float parsing tests passed!\n");
 }
@@ -65,31 +90,55 @@ void test_constant_parsing() {
     assert(parse_constant("42", &constant) == true);
     assert(constant->type == PTX_CONST_INT_SIGNED);
     assert(constant->s64_val == 42);
-    free(constant);
+    free_constant(constant);
     
     // Test hex integer constant
     assert(parse_constant("0xABC", &constant) == true);
     assert(constant->type == PTX_CONST_INT_SIGNED);
     assert(constant->s64_val == 0xABC);
-    free(constant);
+    free_constant(constant);
     
     // Test unsigned integer constant
     assert(parse_constant("123U", &constant) == true);
     assert(constant->type == PTX_CONST_INT_UNSIGNED);
     assert(constant->u64_val == 123);
-    free(constant);
+    free_constant(constant);
     
     // Test float constant
     assert(parse_constant("3.14159", &constant) == true);
     assert(constant->type == PTX_CONST_FLOAT);
     assert(constant->f64_val > 3.14158 && constant->f64_val < 3.14160);
-    free(constant);
+    free_constant(constant);
+    
+    // Test scientific notation float
+    assert(parse_constant("1.23e-4", &constant) == true);
+    assert(constant->type == PTX_CONST_FLOAT_SCIENTIFIC);
+    assert(constant->f64_val > 1.22e-4 && constant->f64_val < 1.24e-4);
+    assert(constant->original_str != NULL);
+    assert(strcmp(constant->original_str, "1.23e-4") == 0);
+    free_constant(constant);
+    
+    // Test IEEE 754 single-precision hex format
+    assert(parse_constant("0F3f800000", &constant) == true);
+    assert(constant->type == PTX_CONST_FLOAT_IEEE_HEX_F32);
+    assert(constant->f32_val > 0.999 && constant->f32_val < 1.001); // Should be exactly 1.0
+    assert(constant->original_str != NULL);
+    assert(strcmp(constant->original_str, "0F3f800000") == 0);
+    free_constant(constant);
+    
+    // Test IEEE 754 double-precision hex format
+    assert(parse_constant("0D3ff0000000000000", &constant) == true);
+    assert(constant->type == PTX_CONST_FLOAT_IEEE_HEX_F64);
+    assert(constant->f64_val > 0.999 && constant->f64_val < 1.001); // Should be exactly 1.0
+    assert(constant->original_str != NULL);
+    assert(strcmp(constant->original_str, "0D3ff0000000000000") == 0);
+    free_constant(constant);
     
     // Test with whitespace
     assert(parse_constant("  42  ", &constant) == true);
     assert(constant->type == PTX_CONST_INT_SIGNED);
     assert(constant->s64_val == 42);
-    free(constant);
+    free_constant(constant);
     
     // Test invalid constant
     assert(parse_constant("not_a_constant", &constant) == false);

@@ -100,22 +100,13 @@ double hex_to_double(const char* hex_str) {
 // Parse floating-point literal string and store in ptx_constant_t
 // Returns true if successful, false if invalid format
 bool parse_float_literal(const char* str, ptx_constant_t* constant) {
-    // Skip regex and directly use strtod for decimal floating-point format
-    char* endptr;
-    constant->f64_val = strtod(str, &endptr);
-    
-    // If endptr points to the end of the string, the entire string was parsed successfully
-    if (*endptr == '\0') {
-        constant->type = PTX_CONST_FLOAT;
-        return true;
-    }
-    
-    // Check for hexadecimal float formats
+    // Check for hexadecimal float formats first
     if (strncmp(str, "0F", 2) == 0 || strncmp(str, "0f", 2) == 0) {
         // Hexadecimal 32-bit IEEE 754 format (e.g., "0F3f800000" for 1.0f)
         if (strlen(str) == 10) { // 0F + 8 hex digits
             constant->f32_val = hex_to_float(str);
-            constant->type = PTX_CONST_FLOAT_SINGLE;
+            constant->type = PTX_CONST_FLOAT_IEEE_HEX_F32;
+            constant->original_str = strdup(str);
             return true;
         }
     }
@@ -123,9 +114,27 @@ bool parse_float_literal(const char* str, ptx_constant_t* constant) {
         // Hexadecimal 64-bit IEEE 754 format (e.g., "0D3ff0000000000000" for 1.0)
         if (strlen(str) == 18) { // 0D + 16 hex digits
             constant->f64_val = hex_to_double(str);
-            constant->type = PTX_CONST_FLOAT;
+            constant->type = PTX_CONST_FLOAT_IEEE_HEX_F64;
+            constant->original_str = strdup(str);
             return true;
         }
+    }
+    
+    // Skip regex and directly use strtod for decimal floating-point format
+    char* endptr;
+    constant->f64_val = strtod(str, &endptr);
+    
+    // If endptr points to the end of the string, the entire string was parsed successfully
+    if (*endptr == '\0') {
+        // Check if it's in scientific notation (contains 'e' or 'E')
+        if (strchr(str, 'e') != NULL || strchr(str, 'E') != NULL) {
+            constant->type = PTX_CONST_FLOAT_SCIENTIFIC;
+            constant->original_str = strdup(str);
+        } else {
+            constant->type = PTX_CONST_FLOAT;
+            constant->original_str = NULL;
+        }
+        return true;
     }
     
     return false;
@@ -215,6 +224,9 @@ bool parse_constant(const char* str, ptx_constant_t** constant) {
         return false; // Memory allocation failed
     }
     
+    // Initialize the original_str to NULL
+    (*constant)->original_str = NULL;
+    
     // Try integer first as it's more common
     bool result = false;
     
@@ -236,4 +248,25 @@ bool parse_constant(const char* str, ptx_constant_t** constant) {
     }
     
     return result;
+}
+
+/**
+ * @brief Free a constant that was allocated by parse_constant
+ * 
+ * This function properly frees any dynamically allocated memory within the constant,
+ * including the original_str field if it was set.
+ *
+ * @param constant The constant to free
+ */
+void free_constant(ptx_constant_t* constant) {
+    if (constant) {
+        // Free the original string if it was allocated
+        if (constant->original_str) {
+            free(constant->original_str);
+            constant->original_str = NULL;
+        }
+        
+        // Free the constant itself
+        free(constant);
+    }
 } 

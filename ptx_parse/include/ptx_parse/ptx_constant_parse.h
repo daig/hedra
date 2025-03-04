@@ -29,3 +29,7 @@ bool parse_pred_literal(const char* str, ptx_constant_t* constant);
  * @return true if the string was successfully parsed as a constant, false otherwise
  */
 bool parse_constant(const char* str, ptx_constant_t** constant); 
+
+// Free a constant that was allocated by parse_constant
+// This properly frees any dynamically allocated memory within the constant
+void free_constant(ptx_constant_t* constant); 
