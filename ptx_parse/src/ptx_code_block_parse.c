@@ -17,7 +17,7 @@
 static size_t skip_whitespace_and_comments(const char* input) {
     size_t pos = 0;
     while (input[pos]) {
-        // Skip whitespace
+        // Skip whitespace (including newlines)
         if (isspace(input[pos])) {
             pos++;
             continue;
@@ -119,11 +119,6 @@ bool ptx_parse_code_block(const char* input, size_t* consumed, ptx_code_block_t*
                 // End of statement
                 stmt_end++;
                 break;
-            } else if (*stmt_end == '\n' && (*(stmt_end-1) != '\\') && brace_level == 0) {
-                // End of line (not continued with backslash) is also end of statement
-                // But only if we're not inside braces
-                stmt_end++;
-                break;
             }
             stmt_end++;
         }
@@ -136,15 +131,37 @@ bool ptx_parse_code_block(const char* input, size_t* consumed, ptx_code_block_t*
             continue;
         }
         
-        char* stmt_text = (char*)malloc(stmt_len + 1);
+        // Trim trailing whitespace from the statement
+        const char* trim_end = stmt_end - 1;
+        while (trim_end > stmt_start && isspace(*trim_end)) {
+            trim_end--;
+        }
+        size_t trimmed_len = (trim_end - stmt_start) + 1;
+        
+        char* stmt_text = (char*)malloc(trimmed_len + 1);
         if (!stmt_text) {
             ptx_code_block_free(*result);
             *result = NULL;
             return false; // Memory allocation failed
         }
         
-        strncpy(stmt_text, stmt_start, stmt_len);
-        stmt_text[stmt_len] = '\0';
+        // Copy the statement text, normalizing whitespace
+        size_t j = 0;
+        bool last_was_space = false;
+        for (size_t i = 0; i < trimmed_len; i++) {
+            char c = stmt_start[i];
+            if (isspace(c)) {
+                if (!last_was_space) {
+                    // Replace any whitespace with a single space
+                    stmt_text[j++] = ' ';
+                    last_was_space = true;
+                }
+            } else {
+                stmt_text[j++] = c;
+                last_was_space = false;
+            }
+        }
+        stmt_text[j] = '\0';
         
         // Parse the statement
         bool success = parse_statement(stmt_text, &statement);

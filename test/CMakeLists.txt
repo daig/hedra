@@ -49,6 +49,16 @@ target_link_libraries(constant_expr_parse_test ptx_parse)
 target_include_directories(constant_expr_parse_test PRIVATE ${CMAKE_SOURCE_DIR}/ptx_ast/include)
 install(TARGETS constant_expr_parse_test DESTINATION bin)
 
+# Test for parsing dynamic kernel example
+add_executable(dynamic_kernel_parse_test ptx_parse/test_dynamic_kernel_parse.c)
+target_link_libraries(dynamic_kernel_parse_test ptx_parse ptx_print ptx_ast prelude)
+target_include_directories(dynamic_kernel_parse_test PRIVATE 
+    ${CMAKE_SOURCE_DIR}/ptx_ast/include
+    ${CMAKE_SOURCE_DIR}/ptx_parse/include
+    ${CMAKE_SOURCE_DIR}/ptx_print/include
+)
+install(TARGETS dynamic_kernel_parse_test DESTINATION bin)
+
 # Test for state space parsing
 add_executable(statespace_parse_test ptx_parse/test_ptx_statespace.c)
 target_link_libraries(statespace_parse_test ptx_parse ptx_print)

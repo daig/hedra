@@ -60,6 +60,17 @@ bool parse_statement(const char* str, struct ptx_statement_t** statement) {
         
         // Free the label structure as we've copied its contents
         free(label);
+        
+        // If there's nothing after the label, treat it as a valid statement with just a label
+        // This is important for handling labels on their own lines
+        if (!*current || *current == ';') {
+            // This is a statement with only a label
+            // Default to INSTRUCTION type with empty instruction
+            // This allows labels on their own line to be properly associated with the next statement
+            (*statement)->tag = INSTRUCTION;
+            memset(&((*statement)->instruction), 0, sizeof(ptx_instruction_t));
+            return true;
+        }
     }
     
     // Now try to parse a directive

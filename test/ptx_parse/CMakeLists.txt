@@ -14,4 +14,7 @@ add_executable(test_code_block_parse test_code_block_parse.c)
 target_link_libraries(test_code_block_parse ptx_parse ptx_print ptx_ast prelude)
 
 add_executable(test_function_with_body_parse test_function_with_body_parse.c)
-target_link_libraries(test_function_with_body_parse ptx_parse ptx_print ptx_ast prelude) 
+target_link_libraries(test_function_with_body_parse ptx_parse ptx_print ptx_ast prelude)
+
+add_executable(test_dynamic_kernel_parse test_dynamic_kernel_parse.c)
+target_link_libraries(test_dynamic_kernel_parse ptx_parse ptx_print ptx_ast prelude) 

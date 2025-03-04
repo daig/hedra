@@ -157,10 +157,69 @@ bool test_code_block_round_trip() {
     return check_num_statements;
 }
 
+/**
+ * Test parsing a code block with labels on their own lines
+ */
+bool test_code_block_with_labels() {
+    const char* input = "{\n"
+                        "    mov.u32 %r1, %tid.x;\n"
+                        "    $LOOP_START:\n"
+                        "    add.u32 %r2, %r1, 1;\n"
+                        "    $RETURN:\n"
+                        "    ret;\n"
+                        "}";
+    
+    size_t consumed = 0;
+    ptx_code_block_t* block = NULL;
+    
+    printf("Parsing code block with labels:\n%s\n", input);
+    bool result = ptx_parse_code_block(input, &consumed, &block);
+    printf("Parse result: %s, consumed: %zu\n", result ? "true" : "false", consumed);
+    
+    if (!result || !block) {
+        return false;
+    }
+    
+    // Check the number of statements
+    printf("Number of statements: %zu\n", block->num_statements);
+    // We should have 3 statements, including the labels associated with instructions
+    bool check_num_statements = block->num_statements == 3;
+    
+    // Check the statements
+    bool check_labels = true;
+    if (block->num_statements >= 1) {
+        printf("Statement 1: %s\n", block->statements[0]->original_text);
+        check_labels = check_labels && 
+            block->statements[0]->label.name == NULL;
+    }
+    if (block->num_statements >= 2) {
+        printf("Statement 2: %s\n", block->statements[1]->original_text);
+        printf("Statement 2 Label: %s\n", 
+               block->statements[1]->label.name ? block->statements[1]->label.name : "NULL");
+        check_labels = check_labels && 
+            block->statements[1]->label.name != NULL &&
+            strcmp(block->statements[1]->label.name, "$LOOP_START") == 0;
+    }
+    if (block->num_statements >= 3) {
+        printf("Statement 3: %s\n", block->statements[2]->original_text);
+        printf("Statement 3 Label: %s\n", 
+               block->statements[2]->label.name ? block->statements[2]->label.name : "NULL");
+        check_labels = check_labels && 
+            block->statements[2]->label.name != NULL &&
+            strcmp(block->statements[2]->label.name, "$RETURN") == 0;
+    }
+    
+    // Free the block
+    ptx_code_block_free(block);
+    
+    return check_num_statements && check_labels;
+}
+
 int main() {
     TEST("Simple code block", test_simple_code_block());
     TEST("Code block with comments", test_code_block_with_comments());
     TEST("Code block round-trip", test_code_block_round_trip());
+    TEST("Code block with labels", test_code_block_with_labels());
     
     printf("\nTests: %d/%d passed\n", test_pass, test_count);
     return test_pass == test_count ? 0 : 1;
